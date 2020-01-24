@@ -1,0 +1,7 @@
+ - Because the game infrequently adds or removes creatures from a collection, but must access them frequently, I will store 
+ creatures in an array. For simplicity, I will first use one array for player creatures and one for enemy creatures. 
+
+ - Try having the universal game clock be a long long number counting up in real time. Have one thread updating this clock, and the 
+ main game thread passing a pointer to this clock to all objects that move in real time. For example, a collection of creatures
+  would read from the clock when deciding on which frame to do some time-sensitive action. The "clock" thread should count upwards
+  in milliseconds (or probably a larger increment).
