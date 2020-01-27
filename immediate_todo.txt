@@ -1,0 +1,7 @@
+Commit and push mac changes to the CPractice GitHub repo
+
+Split the world generation and navigation code into world.c. Figure out how to use world.c functions in main.c by including
+world.h. Create a Makefile to ease compilation of multiple project files.
+
+Once my changes are safe, implement pointers to all 26 neighbor of a node. This will result in shorter paths and more natural
+Creature movement.

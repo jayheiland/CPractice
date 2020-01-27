@@ -2,17 +2,22 @@
 creatures and may try to help*/
 enum relationToPlyrUnits {HOSTILE, NEUTRAL, FRIENDLY, IS_PLAYER}; 
 
-struct creature{
+typedef struct{
+    char name[10]; /*short species identifier, unused spaces filled with whitespace*/
+    int lifespan;
+} species;
+
+typedef struct{
     int key;
+    char speciesName[10];
     enum relationToPlyrUnits plyrRelation;
+} creature;
 
-};
-
-struct creatureCollection{
+typedef struct{
     int key;
-    struct creature *head;
-    struct creatureCollection *next;
-};
+    creature *head;
+    creatureCollection *next;
+} creatureCollection;
 
 void update(unsigned long long int *clock){
 
