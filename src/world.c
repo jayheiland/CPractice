@@ -1,21 +1,6 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <string.h>
 
-#define INT_MAX 2147483647
-
-typedef char smallString[50];
-typedef char longString[500];
-
-void logError(char func[], char msg[]){
-    printf("Error in %s: %s\n", func, msg);
-}
-
-typedef struct{
-    int x;
-    int y;
-    int z;
-} Vec3;
+#include "world.h"
 
 void set(Vec3 *vec, int x, int y, int z){
     vec->x = x;
@@ -38,20 +23,6 @@ void printPath(Vec3 *path, int length){
     }
     printf("\n");
 }
-
-struct worldNode{
-    Vec3 loc;
-    int processed;
-    int nodeType;
-    int visited_Pathing;
-    unsigned int distance_Pathing;
-    struct worldNode* east;
-    struct worldNode* west;
-    struct worldNode* north;
-    struct worldNode* south;
-    struct worldNode* up;
-    struct worldNode* down;
-};
 
 struct worldNode *getNearestNeighbor(struct worldNode *node, Vec3 *worldSize){
     int smallestDist = INT_MAX;
@@ -273,23 +244,4 @@ Vec3 *worldPath(struct worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *e
     free(tempPath);
     *pathLen = idx;
     return path;
-}
-
-void gameLoop(){
-    Vec3 worldSize = {20,20,20};
-    struct worldNode ***world = newWorld(&worldSize);
-    Vec3 test = {0,0,0};
-    Vec3 testDest = {worldSize.x-1,worldSize.y-1,worldSize.z-1};
-    Vec3 *path;
-    int pathLen;
-    path = worldPath(world, &worldSize, &test, &testDest, &pathLen);
-    printPath(path, pathLen);
-    free(path);
-    delWorld(world, &worldSize);
-}
-
-int main(int argc, char** args) {
-    gameLoop();
-
-    return 0;
 }
