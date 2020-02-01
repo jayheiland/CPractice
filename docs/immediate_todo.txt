@@ -1,3 +1,5 @@
+Implement a dev console without graphics. Just confirm what the message was by printing it. 
+
 If worldPath cannot find a valid path, have it call itself and pass an argument indicating that the area to search within should be
 increased. This area takes the shape of a flat parallelogram that is parallel with the line between start and end nodes. This
 value typically starts low so that the worldPath only tries to path within a narrow "road". If the pathfinding fails, this road
