@@ -6,7 +6,7 @@
 #include "general.h"
 
 void gameLoop(){
-    Vec3 worldSize = {20,20,20};
+    Vec3 worldSize = {10,10,10};
     struct worldNode ***world = newWorld(&worldSize);
     Vec3 test = {0,0,0};
     Vec3 testDest = {worldSize.x-1,worldSize.y-1,worldSize.z-1};
