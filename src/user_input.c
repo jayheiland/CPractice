@@ -4,11 +4,11 @@ void processUserInputs(){
     SDL_Event e;
     while( SDL_PollEvent( &e ) != 0 )
     {
-        if( e.type == SDL_QUIT )
+        if(e.type == SDL_QUIT )
         {
             send("QUIT_APP");
         }
-        if( e.type ==  SDL_KEYDOWN)
+        if(e.type ==  SDL_KEYDOWN)
         {
             switch(e.key.keysym.sym){
                 case SDLK_BACKQUOTE: send("TOGGLE_DEBUG_MODE"); break;

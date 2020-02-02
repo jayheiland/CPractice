@@ -5,7 +5,7 @@ BIN = ./bin
 EXEC = $(BIN)/game.app
 SRC = ./src
 
-mac: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/message.o $(BLD)/user_input.o $(BLD)/graphics.o
+mac: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/message.o $(BLD)/user_input.o $(BLD)/graphics.o $(BLD)/creature.o
 	$(CXX) $(CXXFLAGS) -o $(EXEC) $^ -I./external/SDL2/2.0.10/include -L./external/SDL2/2.0.10/lib -lSDL2
 
 $(BLD)/main.o: $(SRC)/main.c
@@ -26,7 +26,10 @@ $(BLD)/user_input.o: $(SRC)/user_input.c
 $(BLD)/graphics.o: $(SRC)/graphics.c
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-dir_setup:
+$(BLD)/creature.o: $(SRC)/creature.c
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
+dirSetup:
 	mkdir build
 	mkdir bin
 

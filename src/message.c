@@ -17,11 +17,25 @@ void send(char msg[]){
             }
             memset(ENGINE_DATA.debugConsoleStr, 0, strlen(ENGINE_DATA.debugConsoleStr));
         }
-        else if(strstr(msg, "_PRESSED") != NULL){
+        else if(strstr(msg, "_KEY_PRESSED") != NULL){
             char tmp[2];
             tmp[0] = msg[0];
             tmp[1] = '\0';
             strcat(ENGINE_DATA.debugConsoleStr, tmp);
         }
+    }
+
+    //testing stuff
+    if(!strcmp(msg, "RAND")){
+        int idx;
+        for(idx = 0; idx < 10; idx++){
+            char testID[ID_BUF];
+            generateID(testID);
+            printf("%s\n", testID);
+        }
+    }
+    if(!strcmp(msg, "TIME")){
+        time_t result = time(NULL);
+        printf("%s\n", asctime(gmtime(&result)));
     }
 }

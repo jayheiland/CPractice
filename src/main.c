@@ -1,12 +1,15 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include <time.h>
 
 #include <SDL2/SDL.h>
 
 #include "world.h"
 #include "general.h"
 #include "message.h"
+#include "user_input.h"
+#include "graphics.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
@@ -28,6 +31,8 @@ void testWorld(){
 }
 
 void gameSetup(){
+    ENGINE_DATA.randomSeed = (unsigned int)time(NULL);
+    srand(ENGINE_DATA.randomSeed);
     ENGINE_DATA.quitGame = 0;
     setupGraphics(&ENGINE_DATA);
 }
@@ -35,7 +40,7 @@ void gameSetup(){
 void gameLoop(){
     while(!ENGINE_DATA.quitGame){
         processUserInputs();
-        drawGraphics(&ENGINE_DATA);
+        drawGraphics(&ENGINE_DATA, &WORLD_DATA);
     }
 }
 

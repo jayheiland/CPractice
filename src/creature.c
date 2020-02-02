@@ -21,11 +21,11 @@ void addCreature(creatureGroup *group, creature *newCreature){
     memcpy(&group->creatures[group->size-1], newCreature, sizeof(creature));
 }
 
-void queueRemoveCreature(creatureGroup *group, int key_){
+void queueRemoveCreature(creatureGroup *group, char id_[]){
     int idx;
     for(idx = 0; idx < group->size; idx++){
         creature *current = &group->creatures[idx];
-        if(current->key == key_){
+        if(!strcmp(current->id, id_)){
             current->queuedForRemoval = 1;
         }
     }

@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #include <SDL2/SDL.h>
 
@@ -10,6 +11,7 @@
 #include "creature.h"
 
 typedef struct{
+    unsigned int randomSeed;
     int quitGame;
     char debugConsoleStr[100];
     SDL_Window *window;
