@@ -24,7 +24,7 @@ void setupGraphics(engineData *engData){
 	}
 }
 
-void drawGraphics(engineData *engData){
+void drawGraphics(engineData *engData, worldData *wData){
     SDL_SetRenderDrawColor(engData->renderer, 0, 0, 0, 255);
     SDL_RenderClear(engData->renderer);
 

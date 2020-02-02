@@ -7,17 +7,20 @@
 #include <SDL2/SDL.h>
 
 #include "world.h"
+#include "creature.h"
 
 typedef struct{
     int quitGame;
+    char debugConsoleStr[100];
     SDL_Window *window;
     SDL_Renderer *renderer;
     int windowWidth, windowHeight;
-    int pauseGame, pauseWorld;
+    int debugMode, pauseWorld;
 } engineData;
 
 typedef struct{
-    
+    creatureGroup playerUnits;
+    creatureGroup otherCreatures;
 } worldData;
 
 void send(char msg[]);

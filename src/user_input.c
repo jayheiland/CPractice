@@ -10,65 +10,53 @@ void processUserInputs(){
         }
         if( e.type ==  SDL_KEYDOWN)
         {
-            if(e.key.keysym.sym == SDLK_BACKQUOTE){
-                send("TOGGLE_DEBUG_MODE");
-            }
-            if(e.key.keysym.sym == SDLK_w){
-                send("UP_PRESSED");
-                send("KEY_W_PRESSED");
-            }
-            if(e.key.keysym.sym == SDLK_s){
-                send("DOWN_PRESSED");
-                send("KEY_S_PRESSED");
-            }
-            if(e.key.keysym.sym == SDLK_a){
-                send("LEFT_PRESSED");
-                send("KEY_A_PRESSED");
-            }
-            if(e.key.keysym.sym == SDLK_d){
-                send("RIGHT_PRESSED");
-                send("KEY_D_PRESSED");
-            }
-            if(e.key.keysym.sym == SDLK_RETURN){
-                send("CONFIRM");
-            }
+            switch(e.key.keysym.sym){
+                case SDLK_BACKQUOTE: send("TOGGLE_DEBUG_MODE"); break;
+                
+                case SDLK_RETURN: send("CONFIRM"); break;
 
-            if(e.key.keysym.sym == SDLK_b){ send("KEY_B_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_c){ send("KEY_C_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_e){ send("KEY_E_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_f){ send("KEY_F_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_g){ send("KEY_G_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_h){ send("KEY_H_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_i){ send("KEY_I_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_j){ send("KEY_J_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_k){ send("KEY_K_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_l){ send("KEY_L_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_m){ send("KEY_M_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_n){ send("KEY_N_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_o){ send("KEY_O_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_p){ send("KEY_P_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_q){ send("KEY_Q_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_r){ send("KEY_R_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_t){ send("KEY_T_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_u){ send("KEY_U_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_v){ send("KEY_V_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_x){ send("KEY_X_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_y){ send("KEY_Y_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_z){ send("KEY_Z_PRESSED"); }
+                case SDLK_a: send("A_KEY_PRESSED"); break;
+                case SDLK_b: send("B_KEY_PRESSED"); break;
+                case SDLK_c: send("C_KEY_PRESSED"); break;
+                case SDLK_d: send("D_KEY_PRESSED"); break;
+                case SDLK_e: send("E_KEY_PRESSED"); break;
+                case SDLK_f: send("F_KEY_PRESSED"); break;
+                case SDLK_g: send("G_KEY_PRESSED"); break;
+                case SDLK_h: send("H_KEY_PRESSED"); break;
+                case SDLK_i: send("I_KEY_PRESSED"); break;
+                case SDLK_j: send("J_KEY_PRESSED"); break;
+                case SDLK_k: send("K_KEY_PRESSED"); break;
+                case SDLK_l: send("L_KEY_PRESSED"); break;
+                case SDLK_m: send("M_KEY_PRESSED"); break;
+                case SDLK_n: send("N_KEY_PRESSED"); break;
+                case SDLK_o: send("O_KEY_PRESSED"); break;
+                case SDLK_p: send("P_KEY_PRESSED"); break;
+                case SDLK_q: send("Q_KEY_PRESSED"); break;
+                case SDLK_r: send("R_KEY_PRESSED"); break;
+                case SDLK_s: send("S_KEY_PRESSED"); break;
+                case SDLK_t: send("T_KEY_PRESSED"); break;
+                case SDLK_u: send("U_KEY_PRESSED"); break;
+                case SDLK_v: send("V_KEY_PRESSED"); break;
+                case SDLK_w: send("W_KEY_PRESSED"); break;
+                case SDLK_x: send("X_KEY_PRESSED"); break;
+                case SDLK_y: send("Y_KEY_PRESSED"); break;
+                case SDLK_z: send("Z_KEY_PRESSED"); break;
 
-            if(e.key.keysym.sym == SDLK_0){ send("KEY_0_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_1){ send("KEY_1_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_2){ send("KEY_2_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_3){ send("KEY_3_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_4){ send("KEY_4_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_5){ send("KEY_5_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_6){ send("KEY_6_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_7){ send("KEY_7_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_8){ send("KEY_8_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_9){ send("KEY_9_PRESSED"); }
+                case SDLK_0: send("0_KEY_PRESSED"); break;
+                case SDLK_1: send("1_KEY_PRESSED"); break;
+                case SDLK_2: send("2_KEY_PRESSED"); break;
+                case SDLK_3: send("3_KEY_PRESSED"); break;
+                case SDLK_4: send("4_KEY_PRESSED"); break;
+                case SDLK_5: send("5_KEY_PRESSED"); break;
+                case SDLK_6: send("6_KEY_PRESSED"); break;
+                case SDLK_7: send("7_KEY_PRESSED"); break;
+                case SDLK_8: send("8_KEY_PRESSED"); break;
+                case SDLK_9: send("9_KEY_PRESSED"); break;
 
-            if(e.key.keysym.sym == SDLK_MINUS){ send("KEY_UNDERSCORE_PRESSED"); }
-            if(e.key.keysym.sym == SDLK_SEMICOLON){ send("KEY_SEMICOLON_PRESSED"); }
+                case SDLK_SPACE: send(" _KEY_PRESSED"); break;
+                case SDLK_MINUS: send("__KEY_PRESSED"); break;
+                case SDLK_SEMICOLON: send(";_KEY_PRESSED"); break;
+            };
         }
     }
 }

@@ -12,6 +12,7 @@ typedef struct{
     int z;
 } Vec3;
 
+//a piece of 3D world space
 typedef struct worldNode{
     Vec3 loc;
     int nodeType;
@@ -29,16 +30,17 @@ typedef struct worldNode{
     struct worldNode* southwest;
 } worldNode;
 
-typedef struct worldNodeCollection{
+//a 3D matrix of worldNodes
+typedef struct worldChunk{
     Vec3 loc;
     worldNode ***nodes;
-    struct worldNodeCollection* east;
-    struct worldNodeCollection* west;
-    struct worldNodeCollection* north;
-    struct worldNodeCollection* south;
-    struct worldNodeCollection* up;
-    struct worldNodeCollection* down;
-} worldNodeCollection;
+    struct worldChunk* east;
+    struct worldChunk* west;
+    struct worldChunk* north;
+    struct worldChunk* south;
+    struct worldChunk* up;
+    struct worldChunk* down;
+} worldChunk;
 
 int equal(Vec3 *vec1, Vec3 *vec2);
 void printPath(Vec3 *path, int length);
