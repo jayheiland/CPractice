@@ -1,7 +1,7 @@
-Commit and push mac changes to the CPractice GitHub repo
+Implement a dev console without graphics. Just confirm what the message was by printing it. 
 
-Split the world generation and navigation code into world.c. Figure out how to use world.c functions in main.c by including
-world.h. Create a Makefile to ease compilation of multiple project files.
-
-Once my changes are safe, implement pointers to all 26 neighbor of a node. This will result in shorter paths and more natural
-Creature movement.
+If worldPath cannot find a valid path, have it call itself and pass an argument indicating that the area to search within should be
+increased. This area takes the shape of a flat parallelogram that is parallel with the line between start and end nodes. This
+value typically starts low so that the worldPath only tries to path within a narrow "road". If the pathfinding fails, this road
+becomes thicker with each failed worldPath call. If the argument is too large, worldPath will do an unbounded search instead. This
+should keep the common case fast.

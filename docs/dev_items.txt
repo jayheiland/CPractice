@@ -1,3 +1,8 @@
+The game world exists in data files, but parts are loaded based on the current position of the player units. Thus, the position
+of the player units represents the worldViews that currently need to be loaded. Four player units in a tight group will only result
+in one worldView, while four player units spread N meters apart from each other will result in four different worldViews which 
+the player can swap between.
+
 Because the game infrequently adds or removes creatures from a collection, but must access them frequently, I will store 
 creatures in an array. For simplicity, I will first use one array for player creatures and one for enemy creatures. 
 

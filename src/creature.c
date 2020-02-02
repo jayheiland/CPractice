@@ -1,24 +1,32 @@
-/*IS_PLAYER tag allows creature to be controlled directly by the player, FRIENDLY means they are sympathetic to the player
-creatures and may try to help*/
-enum relationToPlyrUnits {HOSTILE, NEUTRAL, FRIENDLY, IS_PLAYER}; 
+#include "creature.h"
 
-typedef struct{
-    char name[10]; /*short species identifier, unused spaces filled with whitespace*/
-    int lifespan;
-} species;
+void updateCreatures(creatureGroup *group, unsigned long long int *clock){
+    int idx;
+    //remove any creatures queued for removal
+    for(idx = 0; idx < group->size; idx++){
+        if(group->creatures[idx].queuedForRemoval){
+            if(idx != group->size-1){
+                memcpy(&group->creatures[idx], &group->creatures[idx+1], (group->size-idx-1)*sizeof(creature));
+            }
+            group = realloc(group, (group->size-1)*sizeof(creature));
+            group->size--;
+            idx--;
+        }
+    }
+}
 
-typedef struct{
-    int key;
-    char speciesName[10];
-    enum relationToPlyrUnits plyrRelation;
-} creature;
+void addCreature(creatureGroup *group, creature *newCreature){
+    group->size++;
+    group = realloc(group, group->size*sizeof(creature));
+    memcpy(&group->creatures[group->size-1], newCreature, sizeof(creature));
+}
 
-typedef struct{
-    int key;
-    creature *head;
-    creatureCollection *next;
-} creatureCollection;
-
-void update(unsigned long long int *clock){
-
+void queueRemoveCreature(creatureGroup *group, char id_[]){
+    int idx;
+    for(idx = 0; idx < group->size; idx++){
+        creature *current = &group->creatures[idx];
+        if(!strcmp(current->id, id_)){
+            current->queuedForRemoval = 1;
+        }
+    }
 }
