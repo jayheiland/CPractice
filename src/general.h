@@ -7,9 +7,7 @@
 
 #define INT_MAX 2147483647
 
-#define ID_BUF 16
-
-void logError(char func[], char msg[]);
-void generateID(char *id);
+void logError(const char func[], const char msg[]);
+void generateID(unsigned long int *id);
 
 #endif

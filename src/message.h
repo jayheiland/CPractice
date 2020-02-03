@@ -3,12 +3,17 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
+#include <unordered_map>
+#include <string>
 
 #include <SDL2/SDL.h>
 
 #include "world.h"
 #include "creature.h"
+
+#define TOK_MAX 4
 
 typedef struct{
     unsigned int randomSeed;
@@ -21,10 +26,10 @@ typedef struct{
 } engineData;
 
 typedef struct{
-    creatureGroup playerUnits;
-    creatureGroup otherCreatures;
+    creatureGroup playerCrts;
+    creatureGroup otherCrts;
 } worldData;
 
-void send(char msg[]);
+void send(const char msg[]);
 
 #endif

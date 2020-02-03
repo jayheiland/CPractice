@@ -37,3 +37,7 @@ void shutdownGraphics(engineData *engData){
     SDL_DestroyRenderer(engData->renderer);
     SDL_DestroyWindow(engData->window);
 }
+
+void refreshGraphicsSettings(engineData *engData){
+	SDL_SetWindowSize(engData->window, engData->windowWidth, engData->windowHeight);
+}
