@@ -1,0 +1,29 @@
+creature {
+    id : '8174927493609123'
+    name : 'Basil Green'
+    species : 'HUMAN'
+    strength : 20
+    agility : 5
+    vitality : 12
+    endurance : 20
+}
+
+creature {
+    id : '7745927493609123'
+    name : 'James Chai'
+    species : 'HUMAN'
+    strength : 10
+    agility : 5
+    vitality : 12
+    endurance : 8
+}
+
+creature {
+    id : '9127927493609123'
+    name : 'Marcus Black'
+    species : 'HUMAN'
+    strength : 10
+    agility : 5
+    vitality : 12
+    endurance : 20
+}

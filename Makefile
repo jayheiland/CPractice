@@ -1,4 +1,4 @@
-CXX = gcc
+CXX = g++
 CXXFLAGS = -g -Wall
 BLD = ./build
 BIN = ./bin
@@ -8,33 +8,35 @@ SRC = ./src
 mac: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/message.o $(BLD)/user_input.o $(BLD)/graphics.o $(BLD)/creature.o
 	$(CXX) $(CXXFLAGS) -o $(EXEC) $^ -I./external/SDL2/2.0.10/include -L./external/SDL2/2.0.10/lib -lSDL2
 
-$(BLD)/main.o: $(SRC)/main.c
+$(BLD)/main.o: $(SRC)/main.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/world.o: $(SRC)/world.c
+$(BLD)/world.o: $(SRC)/world.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/general.o: $(SRC)/general.c
+$(BLD)/general.o: $(SRC)/general.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/message.o: $(SRC)/message.c
+$(BLD)/message.o: $(SRC)/message.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/user_input.o: $(SRC)/user_input.c
+$(BLD)/user_input.o: $(SRC)/user_input.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/graphics.o: $(SRC)/graphics.c
+$(BLD)/graphics.o: $(SRC)/graphics.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/creature.o: $(SRC)/creature.c
+$(BLD)/creature.o: $(SRC)/creature.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 dirSetup:
 	mkdir build
 	mkdir bin
 
+dirCleanup:
+	rmdir build
+	rmdir bin
+
 clean:
 	rm $(BLD)/*.o
 	rm $(BIN)/*.app
-	rmdir $(BLD)
-	rmdir $(BIN)

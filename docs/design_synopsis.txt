@@ -1,0 +1,39 @@
+Nurgul/Arc the Blood
+
+Synopsis: Nurgul/Arc the Blood is a strategy RPG centered on handcrafted  maps rather than procedurally-generated maps. It also focuses
+on somewhat deep simulation of combat interactions, body parts, health, crafting medicine/food/ammo/items, mental state, etc. Its default 
+world is somewhat themed around NES/SNES Final Fantasy, LotR, Castlevania, and D&D, but the project will provide tools for modders to 
+create their own vision on top of the tactical/physics/crafting engine base.
+
+Demo map: A stone dungeon would be a good scenario for a demo map. The player can trade with adventurers and wandering merchants within
+the dungeon. They can also pay an adventurer/merchant to "introduce" them to a new party member (through a character creator); a few 
+days after the deal is made, the new party member will appear on the map and path towards the party.
+
+Paladins
+Elves
+Skeletons, Psykeletons, Ghouls
+Goblins, Trolls
+Vampires
+Healer
+Mage
+Battle Mage
+Witch
+
+People are usually titled with "Name, Occupation"
+
+Skills:
+Light Weapons
+Heavy Weapons
+
+
+Names:
+Gurta Hackney
+Hadrian Hackney
+Hubert Hackney
+Indra Hackney
+Urbane Frenck
+Feldrgast Moor
+Marc Pettle
+Shemese Pettle
+Goblin King Frik
+Richard Sherleigh

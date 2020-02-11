@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #include<string.h>
 #include <time.h>
+#include <unordered_map>
+#include <string>
 
 #include <SDL2/SDL.h>
 
@@ -10,6 +12,7 @@
 #include "message.h"
 #include "user_input.h"
 #include "graphics.h"
+#include "creature.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
@@ -30,6 +33,10 @@ void testWorld(){
     delWorld(world, &worldSize);
 }
 
+void testCreatureGroup(){
+
+}
+
 void gameSetup(){
     ENGINE_DATA.randomSeed = (unsigned int)time(NULL);
     srand(ENGINE_DATA.randomSeed);
@@ -38,6 +45,12 @@ void gameSetup(){
 }
 
 void gameLoop(){
+    //setup creature groups
+    std::unordered_map<unsigned long int, creature> pCrts;
+    std::unordered_map<unsigned long int, creature> oCrts;
+    WORLD_DATA.playerCrts.hashtable = &pCrts;
+    WORLD_DATA.otherCrts.hashtable = &oCrts;
+    //game loop
     while(!ENGINE_DATA.quitGame){
         processUserInputs();
         drawGraphics(&ENGINE_DATA, &WORLD_DATA);
@@ -50,6 +63,9 @@ void gameShutdown(){
 
 int main(int argc, char** args) {
     gameSetup();
+
+    testCreatureGroup();
+
     gameLoop();
     gameShutdown();
 

@@ -1,5 +1,3 @@
-#include <string.h>
-
 #include "world.h"
 
 void set(Vec3 *vec, int x, int y, int z){

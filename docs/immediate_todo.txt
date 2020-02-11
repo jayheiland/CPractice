@@ -1,4 +1,9 @@
-Implement a dev console without graphics. Just confirm what the message was by printing it. 
+Turn my C files into C++ files in a new branch and try taking advantage of some C++ features like std::unordered_map (for creatures, 
+items, etc), writing GUI classes, filesystem access, read/write files
+
+Things can be implemented as a huge hashtable. I should have one hastable for the items/body parts belonging to the player creatures,
+and one hashtable for all other currently loaded items/body parts. Creatures "own" things by holding the string key of that thing.
+WorldNodes "own" things by holding the string key of that thing (more likely a pointer to an array of key strings).
 
 If worldPath cannot find a valid path, have it call itself and pass an argument indicating that the area to search within should be
 increased. This area takes the shape of a flat parallelogram that is parallel with the line between start and end nodes. This
