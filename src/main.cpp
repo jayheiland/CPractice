@@ -38,18 +38,17 @@ void testCreatureGroup(){
 }
 
 void gameSetup(){
-    ENGINE_DATA.randomSeed = (unsigned int)time(NULL);
-    srand(ENGINE_DATA.randomSeed);
+    srand((unsigned int)time(NULL));
     ENGINE_DATA.quitGame = 0;
     setupGraphics(&ENGINE_DATA);
 }
 
 void gameLoop(){
     //setup creature groups
-    std::unordered_map<unsigned long int, creature> pCrts;
-    std::unordered_map<unsigned long int, creature> oCrts;
-    WORLD_DATA.playerCrts.hashtable = &pCrts;
-    WORLD_DATA.otherCrts.hashtable = &oCrts;
+    creatureGroup pCrts;
+    creatureGroup oCrts;
+    WORLD_DATA.playerCrts = &pCrts;
+    WORLD_DATA.otherCrts = &oCrts;
     //game loop
     while(!ENGINE_DATA.quitGame){
         processUserInputs();

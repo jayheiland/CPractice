@@ -18,12 +18,11 @@ typedef enum {HOSTILE, NEUTRAL, FRIENDLY, IS_PLAYER} relationToPlyrUnits;
 typedef struct{
     unsigned long int id;
     char name[10]; /*short species identifier, unused spaces filled with whitespace*/
-    int lifespan;
 } species;
 
 typedef struct{
+    char *name;
     unsigned long int id;
-    int queuedForRemoval;
     relationToPlyrUnits plyrRelation;
     //pathing data
     Vec3 loc;
@@ -38,9 +37,7 @@ typedef struct{
     int endurance;
 } creature;
 
-typedef struct{
-    std::unordered_map<unsigned long int, creature> *hashtable;
-} creatureGroup;
+typedef std::unordered_map<unsigned long int, creature> creatureGroup;
 
 void updateCreatures(creatureGroup *group, unsigned long long int *clock);
 void addCreature(creatureGroup *group, creature *newCreature);
