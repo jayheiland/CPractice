@@ -16,7 +16,6 @@
 #define TOK_MAX 4
 
 typedef struct{
-    unsigned int randomSeed;
     int quitGame;
     char debugConsoleStr[100];
     SDL_Window *window;
@@ -26,8 +25,8 @@ typedef struct{
 } engineData;
 
 typedef struct{
-    creatureGroup playerCrts;
-    creatureGroup otherCrts;
+    creatureGroup *playerCrts;
+    creatureGroup *otherCrts;
 } worldData;
 
 void send(const char msg[]);

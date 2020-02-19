@@ -6,11 +6,11 @@ void updateCreatures(creatureGroup *group, unsigned long long int *clock){
 
 void addCreature(creatureGroup *group, creature *newCreature){
     std::pair<unsigned long int, creature> newEntry (newCreature->id, *newCreature);
-    group->hashtable->insert(newEntry);
+    group->insert(newEntry);
 }
 
 void removeCreature(creatureGroup *group, unsigned long int id_){
-    group->hashtable->erase(id_);
+    group->erase(id_);
 }
 
 void loadCreatures(creatureGroup *group){
