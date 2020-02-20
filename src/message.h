@@ -12,6 +12,7 @@
 
 #include "world.h"
 #include "creature.h"
+#include "thing_group.h"
 
 #define TOK_MAX 4
 
@@ -27,6 +28,8 @@ typedef struct{
 typedef struct{
     creatureGroup *playerCrts;
     creatureGroup *otherCrts;
+    ThingGroup *allThings;
+    ThingGroup *thingTemplates;
 } worldData;
 
 void send(const char msg[]);

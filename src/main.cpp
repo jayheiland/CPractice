@@ -13,6 +13,7 @@
 #include "user_input.h"
 #include "graphics.h"
 #include "creature.h"
+#include "thing_group.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
@@ -44,6 +45,11 @@ void gameSetup(){
 }
 
 void gameLoop(){
+    //setup thing groups
+    ThingGroup tngTemplates;
+    ThingGroup allTngs;
+    WORLD_DATA.thingTemplates = &tngTemplates;
+    WORLD_DATA.allThings = &allTngs;
     //setup creature groups
     creatureGroup pCrts;
     creatureGroup oCrts;

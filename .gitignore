@@ -1,4 +1,5 @@
 *.app
+*.exe
 *.code-workspace
 *.o
 *.note

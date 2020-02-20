@@ -1,25 +1,28 @@
 #ifndef THING_H
 #define THING_H
 
-typedef struct{
-    char *name;
-    unsigned long int id;
-    int templateID;
-    unsigned long int *components; //pointer to allocated id array of every thing that makes up this thing
-    int componentCount;
-    int isComponent; /*if true, then this thing does not display as a distinct object in the world; rather, it is an internal 
-    component of another thing*/
-    int isContainer;
-    int equipmentType; //a number identifying the type of equipment, 0 if it is not equipment
-    int equipmentSlotType; //a number identifying the type of equipment slot, 0 if it is not an equipment slot
-    int containerType; /*a number identifying the type of container, 0 if it is not a container (a container is a thing that
-    can be used to carry other things*/
-    unsigned long int *containedThings; //pointer to allocated id array of every thing carried within this thing
-    int containedThingsCount;
-    int maxContainerVolume; //max total volume of things that can be carried within this thing
+#include <unordered_map>
+#include <list>
+#include <string>
 
-    int *chemProperties;
+#include "general.h"
 
-} thing;
+class Thing{
+    public:
+        std::string name;
+        ID id;
+        ID templateID;
+        std::list<ID> components; //id list of every thing that makes up this thing
+        int equipmentType; //a number identifying the type of equipment, 0 if it is not equipment
+        std::list<ID> equipmentAreas; //id list of body parts/things that this thing can be equipped on
+        std::list<ID> containedThings; //id list of every thing carried by this thing
+        int maxContainerVolume; //max total volume of things that can be carried by this thing, 0 if this thing is not a container
+
+        //std::list<ID> chemProperties;
+
+        //methods
+        void printThing();
+
+};
 
 #endif
