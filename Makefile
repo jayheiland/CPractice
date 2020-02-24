@@ -1,11 +1,11 @@
 CXX = g++
-CXXFLAGS = -g -Wall
+CXXFLAGS = -g -Wall -std=c++17
 BLD = ./build
 BIN = ./bin
 EXEC = $(BIN)/game.app
 SRC = ./src
 
-mac: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/message.o $(BLD)/user_input.o $(BLD)/graphics.o $(BLD)/creature.o
+mac: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/message.o $(BLD)/user_input.o $(BLD)/graphics.o $(BLD)/creature.o $(BLD)/thing_group.o $(BLD)/thing.o
 	$(CXX) $(CXXFLAGS) -o $(EXEC) $^ -I./external/SDL2/2.0.10/include -L./external/SDL2/2.0.10/lib -lSDL2
 
 $(BLD)/main.o: $(SRC)/main.cpp
@@ -27,6 +27,12 @@ $(BLD)/graphics.o: $(SRC)/graphics.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 $(BLD)/creature.o: $(SRC)/creature.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
+$(BLD)/thing_group.o: $(SRC)/thing_group.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
+$(BLD)/thing.o: $(SRC)/thing.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 dirSetup:

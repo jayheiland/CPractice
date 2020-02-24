@@ -13,9 +13,11 @@
 #include "user_input.h"
 #include "graphics.h"
 #include "creature.h"
+#include "thing_group.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
+ID masterIDCounter;
 
 //global pointers to game data; only the "send" function is allowed to use this
 worldData WORLD_DATA;
@@ -38,12 +40,17 @@ void testCreatureGroup(){
 }
 
 void gameSetup(){
-    srand((unsigned int)time(NULL));
+    masterIDCounter = 0;
     ENGINE_DATA.quitGame = 0;
     setupGraphics(&ENGINE_DATA);
 }
 
 void gameLoop(){
+    //setup thing groups
+    ThingGroup tngTemplates;
+    ThingGroup allTngs;
+    WORLD_DATA.thingTemplates = &tngTemplates;
+    WORLD_DATA.allThings = &allTngs;
     //setup creature groups
     creatureGroup pCrts;
     creatureGroup oCrts;
