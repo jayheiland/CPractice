@@ -8,9 +8,9 @@
 #include "general.h"
 
 class ThingGroup{
-    private:
-        std::unordered_map<ID, Thing> group;
     public:
+        std::unordered_map<ID, Thing> group;
+
         ThingGroup();
         void addThing(Thing tng);
         void loadThings(std::string path);

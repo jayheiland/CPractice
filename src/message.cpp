@@ -65,9 +65,9 @@ void send(const char msg[]){
     //testing stuff
     if(!strcmp(tokens[0], "RAND")){
         int idx;
+        ID testID;
         for(idx = 0; idx < 10; idx++){
-            unsigned long int testID;
-            generateID(&testID);
+            testID = genID();
             printf("%lu\n", testID);
         }
     }

@@ -13,6 +13,7 @@
 #include "world.h"
 #include "creature.h"
 #include "thing_group.h"
+#include "general.h"
 
 #define TOK_MAX 4
 
