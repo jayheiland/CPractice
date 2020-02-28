@@ -14,6 +14,7 @@
 #include "graphics.h"
 #include "creature.h"
 #include "thing_group.h"
+#include "material_group.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
@@ -46,6 +47,14 @@ void gameSetup(){
 }
 
 void gameLoop(){
+    //setup material groups
+    MaterialGroup mats;
+    WORLD_DATA.allMats = &mats;
+
+    //test
+    send("LOAD_MATERIALS /Users/jayheiland/Projects/CPractice/data/mats.txt");
+    send("PRINT_MATERIALS");
+
     //setup thing groups
     ThingGroup tngTemplates;
     ThingGroup allTngs;
