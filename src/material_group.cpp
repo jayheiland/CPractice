@@ -1,46 +1,48 @@
 #include "material_group.h"
 
+MaterialGroup::MaterialGroup(){}
+
 void MaterialGroup::loadMaterials(std::string path){
     Material newMat;
-    std::string arg[2];
     std::string line;
-    std::ifstream matsFile ("../data/test.materials");
-    if (matsFile.is_open())
-    {
-        while ( std::getline (matsFile,line) )
-        {
-            if(line == "{"){
-                arg[0] = "";
-                arg[1] = "";
-            }
-            else if(line == "}"){
-                std::pair<std::string, Material> entry(newMat.name, newMat);
-                group.insert(entry);
-            }
-            else{
-                //sprintf(line, "   %s : %s", arg[0], arg[1]);
-            }
-        }
-        matsFile.close();
+    int lineNum = 1;
+    std::ifstream infile;
+    infile.open(path);
+    if(!infile.is_open()){
+        logError("loadMaterials", "Could not open materials file: '" + path + "'");
+        return;
     }
-    else std::cout << "Unable to open materials file"; 
+    while (std::getline(infile, line)){
+        if(line == "}"){
+            std::pair<std::string, Material> entry(newMat.name, newMat);
+            group.insert(entry);
+        }
+        else if(line.size() > 1){
+            std::vector<std::string> tokens;
+            splitString(&tokens, line, ':');
+            //strip away whitespace
+            for(int idx = 0; idx < tokens.size(); idx++){
+                tokens[idx] = stripChar(tokens[idx], ' ');
+            }
+            if(std::string(tokens[0]) == "name"){ newMat.name = std::string(tokens[1]); }
+        }
+        else if(line == "{"){
+            
+        }
+        else{
+            logError("loadMaterials", "Could not process file: '" + path + "', at Line " + std::to_string(lineNum));
+            return;
+        }
+        lineNum++;
+    }
+    infile.close();
 }
 
-/*FILE *fp;
-    char str[MAXCHAR];
-    char* filename = "c:\\temp\\test.txt";
- 
-    fp = fopen(filename, "r");
-    if (fp == NULL){
-        printf("Could not open file %s",filename);
-        return 1;
+//debug
+void MaterialGroup::printMaterials(){
+    std::cout << "loaded materials: \n";
+    for ( auto itr = group.begin(); itr != group.end(); ++itr ){
+        std::cout << "   " << itr->first << "\n";
     }
-    while (fgets(str, MAXCHAR, fp) != NULL)
-        printf("%s", str);
-    fclose(fp);
-
-
-
-    
-
-    sprintf(line, "   %s : %s", arg[0], arg[1]);*/
+    std::cout << "\n";
+}

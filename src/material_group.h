@@ -1,12 +1,15 @@
 #pragma once
 
 #include <unordered_map>
-#include <string>
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "material.h"
+#include "general.h"
 
 class MaterialGroup{
     public:
@@ -14,4 +17,6 @@ class MaterialGroup{
 
         MaterialGroup();
         void loadMaterials(std::string path);
+        //debug
+        void printMaterials();
 };

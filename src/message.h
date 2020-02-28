@@ -7,6 +7,7 @@
 #include <time.h>
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 #include <SDL2/SDL.h>
 
@@ -14,8 +15,7 @@
 #include "creature.h"
 #include "thing_group.h"
 #include "general.h"
-
-#define TOK_MAX 4
+#include "material_group.h"
 
 typedef struct{
     int quitGame;
@@ -31,8 +31,9 @@ typedef struct{
     creatureGroup *otherCrts;
     ThingGroup *allThings;
     ThingGroup *thingTemplates;
+    MaterialGroup *allMats;
 } worldData;
 
-void send(const char msg[]);
+void send(std::string msg);
 
 #endif
