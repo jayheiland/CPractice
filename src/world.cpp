@@ -42,7 +42,7 @@ worldNode *getNearestNeighbor(worldNode *node, Vec3 *worldSize){
 
 worldNode ***newWorld(Vec3 *size){
     if(size->x <= 0 || size->y <= 0 || size->z <= 0){
-        logError("newWorld", "Invalid world size");
+        logError("Invalid world size");
     }
     size_t x = (size_t)size->x;
     size_t y = (size_t)size->y;

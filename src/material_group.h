@@ -11,11 +11,11 @@
 #include "material.h"
 #include "general.h"
 
-class MaterialGroup{
+class MaterialHandler{
     public:
         std::unordered_map<std::string, Material> group;
 
-        MaterialGroup();
+        MaterialHandler();
         void loadMaterials(std::string path);
         //debug
         void printMaterials();

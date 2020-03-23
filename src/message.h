@@ -13,26 +13,29 @@
 
 #include "world.h"
 #include "creature.h"
-#include "thing_group.h"
+#include "object_group.h"
 #include "general.h"
 #include "material_group.h"
+#include "gui.h"
 
 typedef struct{
     int quitGame;
-    char debugConsoleStr[100];
+    char debugConsoleStr[1024];
     SDL_Window *window;
     SDL_Renderer *renderer;
+    int defaultGuiBkgColor[4];
     int windowWidth, windowHeight;
     int debugMode, pauseWorld;
 } engineData;
 
 typedef struct{
-    creatureGroup *playerCrts;
-    creatureGroup *otherCrts;
-    ThingGroup *allThings;
-    ThingGroup *thingTemplates;
-    MaterialGroup *allMats;
+    ObjectHandler *objHandler;
+    MaterialHandler *matHandler;
 } worldData;
+
+typedef struct{
+    TextBox *devConsole;
+} guiData;
 
 void send(std::string msg);
 

@@ -11,10 +11,13 @@
 extern unsigned long int masterIDCounter;
 
 typedef unsigned long int ID;
+typedef unsigned int objectCode;
 
-void logError(std::string func, std::string msg);
+void logError(std::string msg);
 ID genID();
 void splitString(std::vector<std::string> *tokens, std::string str, char delimiter);
 std::string stripChar(std::string str, char nix);
+std::string stripCharAround(std::string str, char bookend);
+bool strContains(std::string str, int num, char ch);
 
 #endif
