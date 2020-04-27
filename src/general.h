@@ -12,6 +12,7 @@ extern unsigned long int masterIDCounter;
 
 typedef unsigned long int ID;
 typedef unsigned int objectCode;
+typedef unsigned int creatureCode;
 
 void logError(std::string msg);
 ID genID();

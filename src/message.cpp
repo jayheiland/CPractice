@@ -40,7 +40,17 @@ void send_ObjectMsg(std::vector<std::string> tokens, bool *validMsg){
 
 //helper function, handles messages directed at Creatures
 void send_CreatureMsg(std::vector<std::string> tokens, bool *validMsg){
-    
+    if(tokens[0] == "ADD_CREATURE"){
+        Creature crt;
+        for(int idx = 2; idx < tokens.size(); idx++){
+            crt.name = crt.name + " " + tokens[idx];
+        }
+        crt.speciesName = WORLD_DATA.crtHandler->crtRules[std::stol(tokens[1])].speciesName;
+        crt.body = WORLD_DATA.objHandler->createObject(WORLD_DATA.crtHandler->crtRules[std::stol(tokens[1])].bodyCode);
+        ID id = genID();
+        WORLD_DATA.crtHandler->creatures.insert(std::make_pair(id, crt));
+        *validMsg=true;
+    }
 }
 
 void send(std::string msg){

@@ -60,12 +60,19 @@ void gameLoop(){
     ObjectHandler objHandler_main;
     WORLD_DATA.objHandler = &objHandler_main;
     //setup creature handler
+    CreatureHandler crtHandler_main;
+    WORLD_DATA.crtHandler = &crtHandler_main;
 
     //test
     send("LOAD_MATERIALS /Users/jayheiland/Projects/CPractice/data/mats.txt");
     WORLD_DATA.matHandler->printMaterials();
     send("LOAD_OBJECT_RULES /Users/jayheiland/Projects/CPractice/data/multiObjectRules.txt /Users/jayheiland/Projects/CPractice/data/elementalObjectRules.txt");
     WORLD_DATA.objHandler->createObject(475603);
+    WORLD_DATA.objHandler->elementalObjGroup.printObjects();
+    WORLD_DATA.objHandler->multiObjGroup.printObjects();
+
+    WORLD_DATA.crtHandler->loadRules("/Users/jayheiland/Projects/CPractice/data/creatureRules.txt");
+    send("ADD_CREATURE 100000 Arc Ingusson");
     WORLD_DATA.objHandler->elementalObjGroup.printObjects();
     WORLD_DATA.objHandler->multiObjGroup.printObjects();
 

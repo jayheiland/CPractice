@@ -2,11 +2,6 @@
 
 MultiObjectGroup::MultiObjectGroup(){}
 
-void MultiObjectGroup::addObject(MultiObject obj){
-    std::pair<ID, MultiObject> entry (obj.id, obj);
-    group.insert(entry);
-}
-
 void ObjectHandler::loadRules(std::string multiObjRulesPath, std::string elemObjRulesPath){
     ElementalObjectRule elemRule;
     MultiObjectRule multiRule;
@@ -24,8 +19,9 @@ void ObjectHandler::loadRules(std::string multiObjRulesPath, std::string elemObj
     while (std::getline(infile, line)){
         if(line == "}"){
             if(objCode != 0){
-                elemObjRules.group.insert(std::make_pair(objCode, elemRule));
+                elemObjRules.insert(std::make_pair(objCode, elemRule));
                 objCode = 0;
+                elemRule.alternativeMaterials.clear();
             }
             else{
                 logError("Could not process elemental object rules file: '" + elemObjRulesPath + "', at Line " + std::to_string(lineNum) + ". Parser object code is " + std::to_string(objCode));
@@ -81,8 +77,8 @@ void ObjectHandler::loadRules(std::string multiObjRulesPath, std::string elemObj
     }
     infile.close();
     lineNum=1;
-    multiRule.maxContainerVolume = 0;
     //read MultiObject rules
+    multiRule.maxContainerVolume = 0;
     infile.open(multiObjRulesPath);
     if(!infile.is_open()){
         logError("Could not open multi object rules file: '" + multiObjRulesPath + "'");
@@ -91,8 +87,12 @@ void ObjectHandler::loadRules(std::string multiObjRulesPath, std::string elemObj
     while (std::getline(infile, line)){
         if(line == "}"){
             if(objCode != 0){
-                multiObjRules.group.insert(std::make_pair(objCode, multiRule));
+                multiObjRules.insert(std::make_pair(objCode, multiRule));
                 objCode = 0;
+                multiRule.requirements.clear();
+                multiRule.name.clear();
+                multiRule.equippableSites.clear();
+                multiRule.maxContainerVolume=0;
             }
             else{
                 logError("Could not process multi object rules file: '" + multiObjRulesPath + "', at Line " + std::to_string(lineNum));
@@ -139,7 +139,7 @@ void ObjectHandler::loadRules(std::string multiObjRulesPath, std::string elemObj
                 logError("Could not process multi object rules file: '" + multiObjRulesPath + "', at Line " + std::to_string(lineNum));
             }
         }
-        else if(line == "{"){
+        else if(line == "{" || line == ""){
             
         }
         else{
@@ -152,9 +152,9 @@ void ObjectHandler::loadRules(std::string multiObjRulesPath, std::string elemObj
 }
 
 ID ObjectHandler::createObject(objectCode objCode){
-    if(elemObjRules.group.find(objCode) != elemObjRules.group.end()){
+    if(elemObjRules.find(objCode) != elemObjRules.end()){
         ElementalObject elemObj;
-        ElementalObjectRule rule = elemObjRules.group[objCode];
+        ElementalObjectRule rule = elemObjRules[objCode];
         elemObj.name = rule.name;
         elemObj.objCode = objCode;
         elemObj.materialName = rule.alternativeMaterials[0];
@@ -162,13 +162,13 @@ ID ObjectHandler::createObject(objectCode objCode){
         elemObj.width = rule.width;
         elemObj.height = rule.height;
         elemObj.maxContainerVolume = rule.maxContainerVolume;
-        elemObj.id = genID();
-        elementalObjGroup.group.insert(std::make_pair(elemObj.id, elemObj));
-        return elemObj.id;
+        ID id = genID();
+        elementalObjGroup.group.insert(std::make_pair(id, elemObj));
+        return id;
     }
-    else if(multiObjRules.group.find(objCode) != multiObjRules.group.end()){
+    else if(multiObjRules.find(objCode) != multiObjRules.end()){
         MultiObject multiObj;
-        MultiObjectRule rule = multiObjRules.group[objCode];
+        MultiObjectRule rule = multiObjRules[objCode];
         multiObj.name = rule.name;
         multiObj.objCode = objCode;
         for(MultiObjectRuleReq req : rule.requirements){
@@ -177,11 +177,23 @@ ID ObjectHandler::createObject(objectCode objCode){
             }
         }
         multiObj.maxContainerVolume = rule.maxContainerVolume;
-        multiObj.id = genID();
-        multiObjGroup.group.insert(std::make_pair(multiObj.id, multiObj));
-        return multiObj.id;
+        ID id = genID();
+        multiObjGroup.group.insert(std::make_pair(id, multiObj));
+        return id;
     }
     return 0;
+}
+
+void ObjectHandler::removeObject(ID id_){
+    if(multiObjGroup.group.find(id_) != multiObjGroup.group.end()){
+        for(ID compId : multiObjGroup.group[id_].components){
+            removeObject(compId);
+        }
+        multiObjGroup.group.erase(id_);
+    }
+    else if(elementalObjGroup.group.find(id_) != elementalObjGroup.group.end()){
+        elementalObjGroup.group.erase(id_);
+    }
 }
 
 void MultiObjectGroup::loadObjects(std::string path){

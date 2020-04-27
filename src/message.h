@@ -13,6 +13,7 @@
 
 #include "world.h"
 #include "creature.h"
+#include "creature_group.h"
 #include "object_group.h"
 #include "general.h"
 #include "material_group.h"
@@ -25,12 +26,14 @@ typedef struct{
     SDL_Renderer *renderer;
     int defaultGuiBkgColor[4];
     int windowWidth, windowHeight;
-    int debugMode, pauseWorld;
+    int debugMode;
 } engineData;
 
 typedef struct{
+    CreatureHandler *crtHandler;
     ObjectHandler *objHandler;
     MaterialHandler *matHandler;
+    bool pauseWorld;
 } worldData;
 
 typedef struct{

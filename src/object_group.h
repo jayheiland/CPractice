@@ -29,23 +29,14 @@ class ElementalObjectGroup{
         void printObjects();
 };
 
-class MultiObjectRuleGroup{
-    public:
-        std::unordered_map<objectCode, MultiObjectRule> group;
-};
-
-class ElementalObjectRuleGroup{
-    public:
-        std::unordered_map<objectCode, ElementalObjectRule> group;
-};
-
 class ObjectHandler{
     public:
         MultiObjectGroup multiObjGroup;
         ElementalObjectGroup elementalObjGroup;
-        MultiObjectRuleGroup multiObjRules;
-        ElementalObjectRuleGroup elemObjRules;
+        std::unordered_map<objectCode, MultiObjectRule> multiObjRules;
+        std::unordered_map<objectCode, ElementalObjectRule> elemObjRules;
 
         void loadRules(std::string multiObjRulesPath, std::string elemObjRulesPath);
         ID createObject(objectCode objCode);
+        void removeObject(ID id_);
 };

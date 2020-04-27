@@ -12,9 +12,11 @@
 class Object{
     public:
         std::string name;
-        ID id;
         objectCode objCode;
         double maxContainerVolume;
+        ID equippedSite; //id list of objects that this object is currently equipped on
+        std::vector<ID> equippedObjects; //id list of objects that are equipped on this object
+        std::vector<ID> containedObjects; //id list of every object carried by this object
 
         virtual void printObject();
 };
@@ -23,9 +25,6 @@ class Object{
 class MultiObject : public Object{
     public:
         std::vector<ID> components; //id list of every object that makes up this object
-        std::vector<ID> equippedSites; //id list of objects that this object is currently equipped on
-        std::vector<ID> equippedObjects; //id list of objects that are equipped on this object
-        std::vector<ID> containedObjects; //id list of every object carried by this object
         
         MultiObject();
         void printObject();
@@ -54,7 +53,7 @@ class MultiObjectRule{
     public: 
         std::string name;
         std::vector<MultiObjectRuleReq> requirements; 
-        std::vector<ID> equippableSites; //id list of body part types/objects that this object can be equipped on
+        std::vector<objectCode> equippableSites; //id list of body part types/objects that this object can be equipped on
         double maxContainerVolume;
 
         void print();
@@ -66,6 +65,7 @@ class ElementalObjectRule{
         //the set of Materials that could constitute this single-material object
         std::vector<std::string> alternativeMaterials;
         double length,width,height;
+        std::vector<objectCode> equippableSites; //id list of body part types/objects that this object can be equipped on
         double maxContainerVolume;
 
         void print();

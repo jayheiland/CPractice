@@ -6,7 +6,6 @@ MultiObject::MultiObject(){}
 
 void MultiObject::printObject(){
     printf("name: %s\n", name.c_str());
-    printf("id: %lu\n", id);
     printf("component id's: ");
     for(ID id_ : components){
         printf("  %lu, ", id_);
@@ -24,6 +23,6 @@ void MultiObject::printObject(){
 ElementalObject::ElementalObject(){}
 
 void ElementalObject::printObject(){
-    std::cout << name << std::endl << id << std::endl << materialName << std::endl 
+    std::cout << name << std::endl << materialName << std::endl 
         << length << "," << width << "," << height << std::endl << std::endl;
 }
