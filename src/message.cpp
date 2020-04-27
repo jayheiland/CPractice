@@ -1,7 +1,6 @@
 #include "message.h"
 
 extern engineData ENGINE_DATA;
-extern worldData WORLD_DATA;
 
 //helper function, handles messages directed at graphics code
 void send_GraphicsMsg(std::vector<std::string> tokens, bool *validMsg){
@@ -18,37 +17,6 @@ void send_GraphicsMsg(std::vector<std::string> tokens, bool *validMsg){
         else if(tokens[1] == "0"){
             SDL_SetWindowFullscreen(ENGINE_DATA.window, 0);
         }
-        *validMsg=true;
-    }
-}
-
-//helper function, handles messages directed at Creatures
-void send_MaterialMsg(std::vector<std::string> tokens, bool *validMsg){
-    if(tokens[0] == "LOAD_MATERIALS"){
-        WORLD_DATA.matHandler->loadMaterials(tokens[1]);
-        *validMsg=true;
-    }
-}
-
-//helper function, handles messages directed at Creatures
-void send_ObjectMsg(std::vector<std::string> tokens, bool *validMsg){
-    if(tokens[0] == "LOAD_OBJECT_RULES"){
-        WORLD_DATA.objHandler->loadRules(tokens[1], tokens[2]);
-        *validMsg=true;
-    }
-}
-
-//helper function, handles messages directed at Creatures
-void send_CreatureMsg(std::vector<std::string> tokens, bool *validMsg){
-    if(tokens[0] == "ADD_CREATURE"){
-        Creature crt;
-        for(int idx = 2; idx < tokens.size(); idx++){
-            crt.name = crt.name + " " + tokens[idx];
-        }
-        crt.speciesName = WORLD_DATA.crtHandler->crtRules[std::stol(tokens[1])].speciesName;
-        crt.body = WORLD_DATA.objHandler->createObject(WORLD_DATA.crtHandler->crtRules[std::stol(tokens[1])].bodyCode);
-        ID id = genID();
-        WORLD_DATA.crtHandler->creatures.insert(std::make_pair(id, crt));
         *validMsg=true;
     }
 }
@@ -103,11 +71,7 @@ void send(std::string msg){
 
     //helpers
     send_GraphicsMsg(tokens, &validMsg);
-    send_MaterialMsg(tokens, &validMsg);
-    send_ObjectMsg(tokens, &validMsg);
-    send_CreatureMsg(tokens, &validMsg);
-
-    if(!validMsg){
+    if(!validMsg && ENGINE_DATA.debugMode){
         logError("Could not process message: '" + std::string(msg) + "'");
     }
 }

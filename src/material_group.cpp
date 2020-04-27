@@ -1,8 +1,9 @@
 #include "material_group.h"
 
-MaterialHandler::MaterialHandler(){}
+extern std::unordered_map<std::string, Material> matGroup;
 
-void MaterialHandler::loadMaterials(std::string path){
+
+void loadMaterials(std::string path){
     Material newMat;
     std::string line;
     int lineNum = 1;
@@ -15,7 +16,7 @@ void MaterialHandler::loadMaterials(std::string path){
     while (std::getline(infile, line)){
         if(line == "}"){
             std::pair<std::string, Material> entry(newMat.name, newMat);
-            group.insert(entry);
+            matGroup.insert(entry);
         }
         else if(line.size() > 1){
             std::vector<std::string> tokens;
@@ -50,9 +51,9 @@ void MaterialHandler::loadMaterials(std::string path){
 }
 
 //debug
-void MaterialHandler::printMaterials(){
+void printMaterials(){
     std::cout << "loaded materials: \n";
-    for ( auto itr = group.begin(); itr != group.end(); ++itr ){
+    for ( auto itr = matGroup.begin(); itr != matGroup.end(); ++itr ){
         std::cout << itr->first << "\n";
         for(std::string tag : itr->second.tags){
             std::cout << "\t" << tag << "\n";

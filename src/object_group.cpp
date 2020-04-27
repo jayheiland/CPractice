@@ -1,8 +1,9 @@
 #include "object_group.h"
 
-MultiObjectGroup::MultiObjectGroup(){}
+extern std::unordered_map<objectCode, MultiObjectRule> multiObjRules;
+extern std::unordered_map<objectCode, ElementalObjectRule> elemObjRules;
 
-void ObjectHandler::loadRules(std::string multiObjRulesPath, std::string elemObjRulesPath){
+void loadObjectRules(std::unordered_map<ID, Object> *objGroup, std::string multiObjRulesPath, std::string elemObjRulesPath){
     ElementalObjectRule elemRule;
     MultiObjectRule multiRule;
     objectCode objCode = 0;
@@ -151,9 +152,9 @@ void ObjectHandler::loadRules(std::string multiObjRulesPath, std::string elemObj
     infile.close();
 }
 
-ID ObjectHandler::createObject(objectCode objCode){
+ID createObject(std::unordered_map<ID, Object> *objGroup, objectCode objCode){
     if(elemObjRules.find(objCode) != elemObjRules.end()){
-        ElementalObject elemObj;
+        Object elemObj;
         ElementalObjectRule rule = elemObjRules[objCode];
         elemObj.name = rule.name;
         elemObj.objCode = objCode;
@@ -163,53 +164,41 @@ ID ObjectHandler::createObject(objectCode objCode){
         elemObj.height = rule.height;
         elemObj.maxContainerVolume = rule.maxContainerVolume;
         ID id = genID();
-        elementalObjGroup.group.insert(std::make_pair(id, elemObj));
+        objGroup->insert(std::make_pair(id, elemObj));
         return id;
     }
     else if(multiObjRules.find(objCode) != multiObjRules.end()){
-        MultiObject multiObj;
+        Object multiObj;
         MultiObjectRule rule = multiObjRules[objCode];
         multiObj.name = rule.name;
         multiObj.objCode = objCode;
         for(MultiObjectRuleReq req : rule.requirements){
             for(int idx = 0; idx < req.objectCount; idx++){
-                multiObj.components.push_back(createObject(req.alternativeObjects[0]));
+                multiObj.components.push_back(createObject(objGroup, req.alternativeObjects[0]));
             }
         }
         multiObj.maxContainerVolume = rule.maxContainerVolume;
         ID id = genID();
-        multiObjGroup.group.insert(std::make_pair(id, multiObj));
+        objGroup->insert(std::make_pair(id, multiObj));
         return id;
     }
     return 0;
 }
 
-void ObjectHandler::removeObject(ID id_){
-    if(multiObjGroup.group.find(id_) != multiObjGroup.group.end()){
-        for(ID compId : multiObjGroup.group[id_].components){
-            removeObject(compId);
+void removeObject(std::unordered_map<ID, Object> *objGroup, ID id_){
+    if(objGroup->find(id_) != objGroup->end()){
+        for(ID compId : objGroup->at(id_).components){
+            removeObject(objGroup, compId);
         }
-        multiObjGroup.group.erase(id_);
+        objGroup->erase(id_);
     }
-    else if(elementalObjGroup.group.find(id_) != elementalObjGroup.group.end()){
-        elementalObjGroup.group.erase(id_);
-    }
-}
-
-void MultiObjectGroup::loadObjects(std::string path){
-
-}
-
-void MultiObjectGroup::printObjects(){
-    for(std::pair<ID, MultiObject> obj : group){
-        obj.second.printObject();
+    else if(objGroup->find(id_) != objGroup->end()){
+        objGroup->erase(id_);
     }
 }
 
-ElementalObjectGroup::ElementalObjectGroup(){}
-
-void ElementalObjectGroup::printObjects(){
-    for(std::pair<ID, ElementalObject> obj : group){
-        obj.second.printObject();
+void printObjects(std::unordered_map<ID, Object> *objGroup){
+    for(std::pair<ID, Object> obj : *objGroup){
+        printObject(&obj.second);
     }
 }

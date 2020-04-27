@@ -8,7 +8,7 @@
 #include "message.h"
 
 void setupGraphics(engineData *engData);
-void drawGraphics(engineData *engData, worldData *woData);
+void drawGraphics(engineData *engData);
 void shutdownGraphics(engineData *engData);
 void refreshGraphicsSettings(engineData *engData);
 void drawRect(double x, double y, double width, double height);

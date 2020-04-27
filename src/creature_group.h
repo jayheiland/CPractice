@@ -1,16 +1,11 @@
 #pragma once
 
-#include <string>
 #include <unordered_map>
 #include <fstream>
 
+#include "general.h"
 #include "creature.h"
 
-class CreatureHandler{
-    public:
-        std::unordered_map<ID, Creature> creatures;
+void loadCreatureRules(std::string path);
 
-        std::unordered_map<creatureCode, CreatureRule> crtRules;
-
-        void loadRules(std::string path);
-};
+void addCreature(std::unordered_map<ID, Creature> *crtGroup, std::unordered_map<ID, Object> *objGroup, creatureCode crtCode, std::string name);

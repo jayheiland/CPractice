@@ -1,6 +1,8 @@
 #include "creature_group.h"
 
-void CreatureHandler::loadRules(std::string path){
+extern std::unordered_map<creatureCode, CreatureRule> crtRules;
+
+void loadCreatureRules(std::string path){
     CreatureRule crtRule;
     creatureCode crtCode = 0;
     std::string line;
@@ -55,4 +57,13 @@ void CreatureHandler::loadRules(std::string path){
         lineNum++;
     }
     infile.close();
+}
+
+void addCreature(std::unordered_map<ID, Creature> *crtGroup, std::unordered_map<ID, Object> *objGroup, creatureCode crtCode, std::string name){
+    Creature crt;
+    crt.name = name;
+    crt.speciesName = crtRules[crtCode].speciesName;
+    crt.body = createObject(objGroup, crtRules[crtCode].bodyCode);
+    ID id = genID();
+    crtGroup->insert(std::make_pair(id, crt));
 }

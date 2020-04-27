@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unordered_map>
-#include <string>
 #include <vector>
 
 #include <SDL2/SDL.h>
@@ -17,7 +16,6 @@
 #include "object_group.h"
 #include "general.h"
 #include "material_group.h"
-#include "gui.h"
 
 typedef struct{
     int quitGame;
@@ -28,17 +26,6 @@ typedef struct{
     int windowWidth, windowHeight;
     int debugMode;
 } engineData;
-
-typedef struct{
-    CreatureHandler *crtHandler;
-    ObjectHandler *objHandler;
-    MaterialHandler *matHandler;
-    bool pauseWorld;
-} worldData;
-
-typedef struct{
-    TextBox *devConsole;
-} guiData;
 
 void send(std::string msg);
 

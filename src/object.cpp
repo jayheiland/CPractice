@@ -1,28 +1,19 @@
 #include "object.h"
 
-void Object::printObject(){}
-
-MultiObject::MultiObject(){}
-
-void MultiObject::printObject(){
-    printf("name: %s\n", name.c_str());
+void printObject(Object *obj){
+    printf("name: %s\n", obj->name.c_str());
     printf("component id's: ");
-    for(ID id_ : components){
+    for(ID id_ : obj->components){
         printf("  %lu, ", id_);
     }
     printf("\n");
     printf("containedThings id's: ");
-    for(ID id_ : containedObjects){
+    for(ID id_ : obj->containedObjects){
         printf("  %lu\n", id_);
     }
     printf("\n");
-    printf("maxContainerVolume: %f\n\n", maxContainerVolume);
+    printf("maxContainerVolume: %f\n\n", obj->maxContainerVolume);
+    std::cout << obj->name << std::endl << obj->materialName << std::endl 
+        << obj->length << "," << obj->width << "," << obj->height << std::endl << std::endl;
 
-}
-
-ElementalObject::ElementalObject(){}
-
-void ElementalObject::printObject(){
-    std::cout << name << std::endl << materialName << std::endl 
-        << length << "," << width << "," << height << std::endl << std::endl;
 }
