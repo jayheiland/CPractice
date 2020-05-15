@@ -6,33 +6,26 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unordered_map>
-#include <string>
 #include <vector>
 
 #include <SDL2/SDL.h>
 
 #include "world.h"
 #include "creature.h"
-#include "thing_group.h"
+#include "creature_group.h"
+#include "object_group.h"
 #include "general.h"
 #include "material_group.h"
 
 typedef struct{
     int quitGame;
-    char debugConsoleStr[100];
+    char debugConsoleStr[1024];
     SDL_Window *window;
     SDL_Renderer *renderer;
+    int defaultGuiBkgColor[4];
     int windowWidth, windowHeight;
-    int debugMode, pauseWorld;
+    int debugMode;
 } engineData;
-
-typedef struct{
-    creatureGroup *playerCrts;
-    creatureGroup *otherCrts;
-    ThingGroup *allThings;
-    ThingGroup *thingTemplates;
-    MaterialGroup *allMats;
-} worldData;
 
 void send(std::string msg);
 

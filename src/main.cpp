@@ -3,25 +3,29 @@
 #include<string.h>
 #include <time.h>
 #include <unordered_map>
-#include <string>
 
 #include <SDL2/SDL.h>
 
 #include "world.h"
 #include "general.h"
-#include "message.h"
 #include "user_input.h"
 #include "graphics.h"
 #include "creature.h"
-#include "thing_group.h"
+#include "object_group.h"
 #include "material_group.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
 ID masterIDCounter;
 
-//global pointers to game data; only the "send" function is allowed to use this
-worldData WORLD_DATA;
+//game data
+std::unordered_map<ID, Object> objGroup;
+std::unordered_map<ID, Creature> crtGroup;
+std::unordered_map<creatureCode, CreatureRule> crtRules;
+std::unordered_map<std::string, Material> matGroup;
+
+std::unordered_map<objectCode, MultiObjectRule> multiObjRules;
+std::unordered_map<objectCode, ElementalObjectRule> elemObjRules;
 
 void testWorld(){
     Vec3 worldSize = {10,10,10};
@@ -41,34 +45,30 @@ void testCreatureGroup(){
 }
 
 void gameSetup(){
-    masterIDCounter = 0;
+    masterIDCounter = 1;
     ENGINE_DATA.quitGame = 0;
     setupGraphics(&ENGINE_DATA);
 }
 
 void gameLoop(){
-    //setup material groups
-    MaterialGroup mats;
-    WORLD_DATA.allMats = &mats;
+    //setup GUI
 
     //test
-    send("LOAD_MATERIALS /Users/jayheiland/Projects/CPractice/data/mats.txt");
-    send("PRINT_MATERIALS");
+    loadMaterials("/Users/jayheiland/Projects/CPractice/data/mats.txt");
+    printMaterials();
 
-    //setup thing groups
-    ThingGroup tngTemplates;
-    ThingGroup allTngs;
-    WORLD_DATA.thingTemplates = &tngTemplates;
-    WORLD_DATA.allThings = &allTngs;
-    //setup creature groups
-    creatureGroup pCrts;
-    creatureGroup oCrts;
-    WORLD_DATA.playerCrts = &pCrts;
-    WORLD_DATA.otherCrts = &oCrts;
+    loadObjectRules(&objGroup, "/Users/jayheiland/Projects/CPractice/data/multiObjectRules.txt", "/Users/jayheiland/Projects/CPractice/data/elementalObjectRules.txt");
+    createObject(&objGroup, 475603);
+    printObjects(&objGroup);
+
+    loadCreatureRules("/Users/jayheiland/Projects/CPractice/data/creatureRules.txt");
+    addCreature(&crtGroup, &objGroup, 100000, "Luneth");
+    printObjects(&objGroup);
+
     //game loop
     while(!ENGINE_DATA.quitGame){
         processUserInputs();
-        drawGraphics(&ENGINE_DATA, &WORLD_DATA);
+        drawGraphics(&ENGINE_DATA);
     }
 }
 

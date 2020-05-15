@@ -77,6 +77,7 @@ void processUserInputs(){
                 case SDLK_BACKQUOTE: send("TOGGLE_DEBUG_MODE"); break;
                 
                 case SDLK_RETURN: send("CONFIRM"); break;
+                case SDLK_BACKSPACE: send("BACKSPACE"); break;
 
                 case SDLK_0: send("0_KEY_PRESSED"); break;
                 case SDLK_1: send("1_KEY_PRESSED"); break;

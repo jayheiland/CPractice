@@ -1,7 +1,7 @@
 #include "general.h"
 
-void logError(std::string func, std::string msg){
-    printf("Error in %s: %s\n", func.c_str(), msg.c_str());
+void logError(std::string msg){
+    printf("Error: %s\n", msg.c_str());
 }
 
 unsigned long int genID(){
@@ -25,4 +25,34 @@ std::string stripChar(std::string str, char nix){
         }
     }
     return result;
+}
+
+std::string stripCharAround(std::string str, char bookend){
+    std::string result = "";
+    bool strip = true;
+    for(char c : str){
+        if(strip && c == bookend){
+            strip = false;
+        }
+        else if(!strip && c == bookend){
+            strip = true;
+        }
+        else if(!strip && c != bookend){
+            result += c;
+        }
+    }
+    return result;
+}
+
+bool strContains(std::string str, int num, char ch){
+    int count = 0;
+    for(char charInStr : str){
+        if(charInStr == ch){
+            count++;
+        }
+    }
+    if(count >= num){
+        return true;
+    }
+    return false;
 }

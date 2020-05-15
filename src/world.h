@@ -14,6 +14,11 @@ typedef struct{
     int z;
 } Vec3;
 
+typedef struct{
+    Vec3 chunk;
+    Vec3 loc;
+} worldLoc;
+
 //a piece of 3D world space
 typedef struct worldNode{
     Vec3 loc;
@@ -34,7 +39,7 @@ typedef struct worldNode{
 
 //a 3D matrix of worldNodes
 typedef struct worldChunk{
-    Vec3 loc;
+    Vec3 chunkLoc;
     worldNode ***nodes;
     struct worldChunk* east;
     struct worldChunk* west;

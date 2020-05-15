@@ -3,8 +3,8 @@
 
 #include <SDL2/SDL.h>
 
-#include "message.h"
 #include "general.h"
+#include "message.h"
 
 void processUserInputs();
 

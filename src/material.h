@@ -1,8 +1,10 @@
 #pragma once
 
+#include <vector>
 #include <string>
 
-class Material{
-    public:
-        std::string name;
-};
+typedef struct{
+    std::string name;
+    double density;
+    std::vector<std::string> tags;
+} Material;
