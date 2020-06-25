@@ -56,3 +56,11 @@ bool strContains(std::string str, int num, char ch){
     }
     return false;
 }
+
+int roll(int numberDice, int numberSides){
+    int total = 0;
+    for(int die = 0; die < numberDice; die++){
+        total += rand() % numberSides + 1;
+    }
+    return total;
+}

@@ -1,9 +1,6 @@
 #include "material_group.h"
 
-extern std::unordered_map<std::string, Material> matGroup;
-
-
-void loadMaterials(std::string path){
+void loadMaterials(std::unordered_map<std::string, Material> *matGroup, std::string path){
     Material newMat;
     std::string line;
     int lineNum = 1;
@@ -16,7 +13,7 @@ void loadMaterials(std::string path){
     while (std::getline(infile, line)){
         if(line == "}"){
             std::pair<std::string, Material> entry(newMat.name, newMat);
-            matGroup.insert(entry);
+            matGroup->insert(entry);
         }
         else if(line.size() > 1){
             std::vector<std::string> tokens;
@@ -50,10 +47,21 @@ void loadMaterials(std::string path){
     infile.close();
 }
 
+std::string getMaterialWithTag(std::unordered_map<std::string, Material> *matGroup, std::string desiredTag){
+    for(std::pair<std::string, Material> mat : *matGroup){
+        for(std::string tag : mat.second.tags){
+            if(tag == desiredTag){
+                return mat.second.name;
+            }
+        }
+    }
+    return "";
+}
+
 //debug
-void printMaterials(){
-    std::cout << "loaded materials: \n";
-    for ( auto itr = matGroup.begin(); itr != matGroup.end(); ++itr ){
+void printMaterials(std::unordered_map<std::string, Material> *matGroup){
+    std::cout << "-------------------------------Loaded Materials----------------------------------\n";
+    for ( auto itr = matGroup->begin(); itr != matGroup->end(); ++itr ){
         std::cout << itr->first << "\n";
         for(std::string tag : itr->second.tags){
             std::cout << "\t" << tag << "\n";

@@ -1,6 +1,6 @@
 #include "object.h"
 
-void printObject(Object *obj){
+void printObject(std::unordered_map<ID, Object> *objGroup, Object *obj){
     printf("name: %s\n", obj->name.c_str());
     printf("component id's: ");
     for(ID id_ : obj->components){
@@ -12,8 +12,11 @@ void printObject(Object *obj){
         printf("  %lu\n", id_);
     }
     printf("\n");
-    printf("maxContainerVolume: %f\n\n", obj->maxContainerVolume);
-    std::cout << obj->name << std::endl << obj->materialName << std::endl 
-        << obj->length << "," << obj->width << "," << obj->height << std::endl << std::endl;
-
+    std::cout << "equipped objects: " << std::endl;
+    for(ID id_ : obj->equippedObjects){
+        std::cout << "\t" << objGroup->at(id_).name << std::endl;
+    }
+    printf("maxContainerVolume: %f\n", obj->maxContainerVolume);
+    std::cout << "material name: " << obj->materialName << std::endl 
+        << "dimensions: " << obj->length << "," << obj->width << "," << obj->height << std::endl << std::endl;
 }

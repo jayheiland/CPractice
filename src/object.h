@@ -8,43 +8,40 @@
 #include "general.h"
 #include "material.h"
 
+typedef unsigned int objectCode;
+
 typedef struct{
     std::string name;
-    bool isMulti;
     objectCode objCode;
     double maxContainerVolume;
-    ID equippedSite; //id list of objects that this object is currently equipped on
+    std::vector<ID> equippedSites; //id of the object that this object is currently equipped on
     std::vector<ID> equippedObjects; //id list of objects that are equipped on this object
     std::vector<ID> containedObjects; //id list of every object carried by this object
     std::vector<ID> components; //id list of every object that makes up this object
     std::string materialName;
     double length,width,height; //ElementalObjects are roughly defined as a three-dimensional box (centimeters)
+    double integrity; //when this is reduced to 0, the object is destroyed
 } Object;
-
-void printObject(Object *obj);
-double getVolume();
 
 typedef struct{
     //number of objects required
     int objectCount;
     //the set of objects that could fulfill this requirement
     std::vector<objectCode> alternativeObjects;
-} MultiObjectRuleReq;
+} ObjectRuleComponentReq;
 
 typedef struct{
     std::string name;
-    std::vector<MultiObjectRuleReq> requirements; 
-    std::vector<objectCode> equippableSites; //id list of body part types/objects that this object can be equipped on
-    double maxContainerVolume;
-}MultiObjectRule;
-
-typedef struct{
-    std::string name;
-    //the set of Materials that could constitute this single-material object
+    //the set of Materials that could constitute a single-material object
     std::vector<std::string> alternativeMaterials;
+    //the set of component objects (if this is not a continuous object)
+    std::vector<ObjectRuleComponentReq> requirements; 
     double length,width,height;
     std::vector<objectCode> equippableSites; //id list of body part types/objects that this object can be equipped on
     double maxContainerVolume;
-}ElementalObjectRule;
+}ObjectRule;
+
+void printObject(std::unordered_map<ID, Object> *objGroup, Object *obj);
+double getVolume();
 
 #endif

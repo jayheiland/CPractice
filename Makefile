@@ -44,6 +44,8 @@ $(BLD)/material_group.o: $(SRC)/material_group.cpp
 $(BLD)/material.o: $(SRC)/material.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
+.PHONY: dirSetup dirCleanup clean run lldb
+
 dirSetup:
 	mkdir build
 	mkdir bin
@@ -53,5 +55,11 @@ dirCleanup:
 	rmdir bin
 
 clean:
-	rm $(BLD)/*.o
-	rm $(BIN)/*.app
+	rm -f $(BLD)/*.o
+	rm -f $(BIN)/*.app
+
+run:
+	./bin/game.app
+
+lldb:
+	lldb ./bin/game.app

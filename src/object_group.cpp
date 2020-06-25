@@ -1,31 +1,36 @@
 #include "object_group.h"
 
-extern std::unordered_map<objectCode, MultiObjectRule> multiObjRules;
-extern std::unordered_map<objectCode, ElementalObjectRule> elemObjRules;
-
-void loadObjectRules(std::unordered_map<ID, Object> *objGroup, std::string multiObjRulesPath, std::string elemObjRulesPath){
-    ElementalObjectRule elemRule;
-    MultiObjectRule multiRule;
+void loadObjectRules(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath){
+    ObjectRule newRule;
     objectCode objCode = 0;
     std::string line;
     int lineNum = 1;
-    elemRule.maxContainerVolume = 0;
+    newRule.maxContainerVolume = 0;
+    newRule.length=0;
+    newRule.height=0;
+    newRule.width=0;
     std::ifstream infile;
     //read ElementalObject rules
-    infile.open(elemObjRulesPath);
+    infile.open(objRulesPath);
     if(!infile.is_open()){
-        logError("Could not open elemental object rules file: '" + elemObjRulesPath + "'");
+        logError("Could not open elemental object rules file: '" + objRulesPath + "'");
         return;
     }
     while (std::getline(infile, line)){
         if(line == "}"){
             if(objCode != 0){
-                elemObjRules.insert(std::make_pair(objCode, elemRule));
+                objRules->insert(std::make_pair(objCode, newRule));
                 objCode = 0;
-                elemRule.alternativeMaterials.clear();
+                newRule.requirements.clear();
+                newRule.name.clear();
+                newRule.equippableSites.clear();
+                newRule.maxContainerVolume=0;
+                newRule.length=0;
+                newRule.height=0;
+                newRule.width=0;
             }
             else{
-                logError("Could not process elemental object rules file: '" + elemObjRulesPath + "', at Line " + std::to_string(lineNum) + ". Parser object code is " + std::to_string(objCode));
+                logError("Could not process object rules file: '" + objRulesPath + "', at Line " + std::to_string(lineNum) + ". Parser object code is " + std::to_string(objCode));
             }
         }
         else if(line.size() > 1){
@@ -36,7 +41,7 @@ void loadObjectRules(std::unordered_map<ID, Object> *objGroup, std::string multi
             if(strContains(tokens[1], 2, '\'')){
                 if(tokens[0] == "name"){
                     tokens[1] = stripCharAround(tokens[1], '\'');
-                    elemRule.name = tokens[1];
+                    newRule.name = tokens[1];
                 }
             }
             //parse object code
@@ -48,71 +53,8 @@ void loadObjectRules(std::unordered_map<ID, Object> *objGroup, std::string multi
                 tokens[1] = stripChar(tokens[1], ' ');
                 std::vector<std::string> mTags;
                 splitString(&mTags, tokens[1], ',');
-                elemRule.alternativeMaterials.clear();
-                elemRule.alternativeMaterials = mTags;
-            }
-            else if(tokens[0] == "length"){
-                elemRule.length = std::stod(stripChar(tokens[1], ' '));
-            }
-            else if(tokens[0] == "width"){
-                elemRule.width = std::stod(stripChar(tokens[1], ' '));
-            }
-            else if(tokens[0] == "height"){
-                elemRule.height = std::stod(stripChar(tokens[1], ' '));
-            }
-            else if(tokens[0] == "maxContainerVolume"){
-                elemRule.maxContainerVolume = std::stoi(stripChar(tokens[1], ' '));
-            }
-            else{
-                logError("Could not process elemental object rules file: '" + elemObjRulesPath + "', at Line " + std::to_string(lineNum));
-            }
-        }
-        else if(line == "{" || line == ""){
-            
-        }
-        else{
-            logError("Could not process elemental object rules file: '" + elemObjRulesPath + "', at Line " + std::to_string(lineNum));
-            return;
-        }
-        lineNum++;
-    }
-    infile.close();
-    lineNum=1;
-    //read MultiObject rules
-    multiRule.maxContainerVolume = 0;
-    infile.open(multiObjRulesPath);
-    if(!infile.is_open()){
-        logError("Could not open multi object rules file: '" + multiObjRulesPath + "'");
-        return;
-    }
-    while (std::getline(infile, line)){
-        if(line == "}"){
-            if(objCode != 0){
-                multiObjRules.insert(std::make_pair(objCode, multiRule));
-                objCode = 0;
-                multiRule.requirements.clear();
-                multiRule.name.clear();
-                multiRule.equippableSites.clear();
-                multiRule.maxContainerVolume=0;
-            }
-            else{
-                logError("Could not process multi object rules file: '" + multiObjRulesPath + "', at Line " + std::to_string(lineNum));
-            }
-        }
-        else if(line.size() > 1){
-            std::vector<std::string> tokens;
-            splitString(&tokens, line, ':');
-            tokens[0] = stripChar(tokens[0], ' ');
-            //parse name
-            if(strContains(tokens[1], 2, '\'')){
-                if(tokens[0] == "name"){
-                    tokens[1] = stripCharAround(tokens[1], '\'');
-                    multiRule.name = tokens[1];
-                }
-            }
-            //parse object code
-            else if(tokens[0] == "objectCode"){
-                objCode = std::stoi(stripChar(tokens[1], ' '));
+                newRule.alternativeMaterials.clear();
+                newRule.alternativeMaterials = mTags;
             }
             else if(tokens[0] == "components"){
                 tokens[1] = stripChar(tokens[1], ' ');
@@ -121,7 +63,7 @@ void loadObjectRules(std::unordered_map<ID, Object> *objGroup, std::string multi
                 std::vector<std::string> objReqs;
                 splitString(&objReqs, tokens[1], ',');
                 for(std::string req : objReqs){
-                    MultiObjectRuleReq multiRuleReq;
+                    ObjectRuleComponentReq multiRuleReq;
                     std::vector<std::string> objReqTokens;
                     splitString(&objReqTokens, req, '=');
                     multiRuleReq.objectCount = std::stoi(objReqTokens[1]);
@@ -130,21 +72,38 @@ void loadObjectRules(std::unordered_map<ID, Object> *objGroup, std::string multi
                     for(std::string alt : altReqs){
                         multiRuleReq.alternativeObjects.push_back(std::stoi(alt));
                     }
-                    multiRule.requirements.push_back(multiRuleReq);
+                    newRule.requirements.push_back(multiRuleReq);
                 }
             }
+            else if(tokens[0] == "equippableSites"){
+                tokens[1] = stripChar(tokens[1], ' ');
+                std::vector<std::string> eqSites;
+                splitString(&eqSites, tokens[1], ',');
+                for(std::string site : eqSites){
+                    newRule.equippableSites.push_back(std::stoi(site));
+                }
+            }
+            else if(tokens[0] == "length"){
+                newRule.length = std::stod(stripChar(tokens[1], ' '));
+            }
+            else if(tokens[0] == "width"){
+                newRule.width = std::stod(stripChar(tokens[1], ' '));
+            }
+            else if(tokens[0] == "height"){
+                newRule.height = std::stod(stripChar(tokens[1], ' '));
+            }
             else if(tokens[0] == "maxContainerVolume"){
-                multiRule.maxContainerVolume = std::stoi(stripChar(tokens[1], ' '));
+                newRule.maxContainerVolume = std::stoi(stripChar(tokens[1], ' '));
             }
             else{
-                logError("Could not process multi object rules file: '" + multiObjRulesPath + "', at Line " + std::to_string(lineNum));
+                logError("Could not process elemental object rules file: '" + objRulesPath + "', at Line " + std::to_string(lineNum));
             }
         }
         else if(line == "{" || line == ""){
             
         }
         else{
-            logError("Could not process multi object rules file: '" + multiObjRulesPath + "', at Line " + std::to_string(lineNum));
+            logError("Could not process elemental object rules file: '" + objRulesPath + "', at Line " + std::to_string(lineNum));
             return;
         }
         lineNum++;
@@ -152,34 +111,24 @@ void loadObjectRules(std::unordered_map<ID, Object> *objGroup, std::string multi
     infile.close();
 }
 
-ID createObject(std::unordered_map<ID, Object> *objGroup, objectCode objCode){
-    if(elemObjRules.find(objCode) != elemObjRules.end()){
-        Object elemObj;
-        ElementalObjectRule rule = elemObjRules[objCode];
-        elemObj.name = rule.name;
-        elemObj.objCode = objCode;
-        elemObj.materialName = rule.alternativeMaterials[0];
-        elemObj.length = rule.length;
-        elemObj.width = rule.width;
-        elemObj.height = rule.height;
-        elemObj.maxContainerVolume = rule.maxContainerVolume;
-        ID id = genID();
-        objGroup->insert(std::make_pair(id, elemObj));
-        return id;
-    }
-    else if(multiObjRules.find(objCode) != multiObjRules.end()){
-        Object multiObj;
-        MultiObjectRule rule = multiObjRules[objCode];
-        multiObj.name = rule.name;
-        multiObj.objCode = objCode;
-        for(MultiObjectRuleReq req : rule.requirements){
+ID createObject(gameData *data, objectCode objCode){
+    if(data->objRules.find(objCode) != data->objRules.end()){
+        Object newObj;
+        ObjectRule rule = data->objRules[objCode];
+        newObj.name = rule.name;
+        newObj.objCode = objCode;
+        for(ObjectRuleComponentReq req : rule.requirements){
             for(int idx = 0; idx < req.objectCount; idx++){
-                multiObj.components.push_back(createObject(objGroup, req.alternativeObjects[0]));
+                newObj.components.push_back(createObject(data, req.alternativeObjects[0]));
             }
         }
-        multiObj.maxContainerVolume = rule.maxContainerVolume;
+        newObj.materialName = getMaterialWithTag(&data->matGroup, rule.alternativeMaterials[0]);
+        newObj.length = rule.length;
+        newObj.width = rule.width;
+        newObj.height = rule.height;
+        newObj.maxContainerVolume = rule.maxContainerVolume;
         ID id = genID();
-        objGroup->insert(std::make_pair(id, multiObj));
+        data->objGroup.insert(std::make_pair(id, newObj));
         return id;
     }
     return 0;
@@ -192,13 +141,33 @@ void removeObject(std::unordered_map<ID, Object> *objGroup, ID id_){
         }
         objGroup->erase(id_);
     }
-    else if(objGroup->find(id_) != objGroup->end()){
-        objGroup->erase(id_);
+}
+
+void equipObject(gameData *data, ID equipper, ID equipment){
+    for(auto itr = data->objRules.at(data->objGroup.at(equipment).objCode).equippableSites.begin(); itr < data->objRules.at(data->objGroup.at(equipment).objCode).equippableSites.end(); itr++){
+        if(*itr == data->objGroup.at(equipper).objCode){
+            data->objGroup.at(equipper).equippedObjects.push_back(equipment);
+            data->objGroup.at(equipment).equippedSites.push_back(equipper);
+        }
+    }
+}
+
+void unequipObject(std::unordered_map<ID, Object> *objGroup, ID equipper, ID equipment){
+    for(auto itr = objGroup->at(equipper).equippedObjects.begin(); itr < objGroup->at(equipper).equippedObjects.end(); itr++){
+        if(*itr == equipment){
+            objGroup->at(equipper).equippedObjects.erase(itr);
+        }
+    }
+    for(auto itr = objGroup->at(equipment).equippedSites.begin(); itr < objGroup->at(equipment).equippedSites.end(); itr++){
+        if(*itr == equipper){
+            objGroup->at(equipment).equippedSites.erase(itr);
+        }
     }
 }
 
 void printObjects(std::unordered_map<ID, Object> *objGroup){
+    std::cout << "------------------------------Loaded Objects----------------------------------" << std::endl;
     for(std::pair<ID, Object> obj : *objGroup){
-        printObject(&obj.second);
+        printObject(objGroup, &obj.second);
     }
 }
