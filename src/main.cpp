@@ -15,8 +15,6 @@
 #include "object_group.h"
 #include "material_group.h"
 
-#define NULL_ID 0
-
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
 ID masterIDCounter;
@@ -51,12 +49,16 @@ void gameLoop(){
 
     //test
     std::string filePath = "/Users/jayheiland/Projects/Cartwright/data/";
-    loadMaterials(&data.matGroup, filePath + "materials.txt");
+    loadMaterials_Json(&data.matGroup, filePath + "materials.json");
     printMaterials(&data.matGroup);
-    loadObjectRules(&data.objRules, filePath + "multiObjectRules.txt");
-    loadObjectRules(&data.objRules, filePath + "elementalObjectRules.txt");
-    loadCreatureRules(&data.crtRules, filePath + "creatureRules.txt");
-    loadFactions(&data.fctGroup, filePath + "factions.txt");
+
+    // loadObjectRules(&data.objRules, filePath + "multiObjectRules.txt");
+    // loadObjectRules(&data.objRules, filePath + "elementalObjectRules.txt");
+    loadObjectRules_Json(&data.objRules, filePath + "multiObjectRules.json");
+    loadObjectRules_Json(&data.objRules, filePath + "elementalObjectRules.json");
+
+    loadCreatureRules_Json(&data.crtRules, filePath + "creatureRules.json");
+    loadFactions_Json(&data.fctGroup, filePath + "factions.txt");
 
     ID testHuman1 = createCreature(&data, 100000, "Luneth", 100000);
     ID testHuman2 = createCreature(&data, 100000, "Ingus", 773941);

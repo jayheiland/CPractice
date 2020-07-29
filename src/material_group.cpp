@@ -1,5 +1,16 @@
 #include "material_group.h"
 
+void loadMaterials_Json(std::unordered_map<std::string, Material> *matGroup, std::string path){
+    Material newMat;
+    JsonObject *materialsFromFile = parseJsonFile(path);
+    for(auto mat : materialsFromFile->getJsonArray("materials").getJsonObjectArray()){
+        newMat.name = mat->getString("name");
+        newMat.density = mat->getDouble("density");
+        newMat.tags = mat->getJsonArray("materialTags").getStringArray();
+        matGroup->insert(std::make_pair(newMat.name, newMat));
+    }
+}
+
 void loadMaterials(std::unordered_map<std::string, Material> *matGroup, std::string path){
     Material newMat;
     std::string line;

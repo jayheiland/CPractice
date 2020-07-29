@@ -8,6 +8,7 @@
 #include "general.h"
 #include "material_group.h"
 #include "creature_group.h"
+#include "json_parser.hpp"
 
 struct gameData;
 
@@ -18,6 +19,10 @@ void printObjects(std::unordered_map<ID, Object> *objGroup);
 
 ID createObject(gameData *data, objectCode objCode);
 void removeObject(std::unordered_map<ID, Object> *objGroup, ID id_);
+void loadObjectRules_Json(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath);
 void loadObjectRules(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath);
 void equipObject(gameData *data, ID equipper, ID equipment);
 void unequipObject(std::unordered_map<ID, Object> *objGroup, ID equipper, ID equipment);
+ID getWeapon(std::unordered_map<ID, Object> *objGroup, ID body);
+void attackObject(gameData *data, ID weapon, ID subject);
+double getMass(gameData *data, ID subject);

@@ -7,6 +7,8 @@
 #include <vector>
 #include <sstream>
 
+#define NULL_ID 0
+
 extern unsigned long int masterIDCounter;
 
 typedef unsigned long int ID;

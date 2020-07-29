@@ -5,6 +5,9 @@ BIN = ./bin
 EXEC = $(BIN)/game.app
 SRC = ./src
 
+all_faster:
+	make all -j 4
+
 all: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/message.o $(BLD)/user_input.o $(BLD)/graphics.o $(BLD)/creature.o $(BLD)/creature_group.o $(BLD)/object_group.o $(BLD)/object.o $(BLD)/material_group.o $(BLD)/material.o
 	$(CXX) $(CXXFLAGS) -o $(EXEC) $^ -I./external/SDL2/2.0.10/include -L./external/SDL2/2.0.10/lib -lSDL2
 
@@ -44,7 +47,7 @@ $(BLD)/material_group.o: $(SRC)/material_group.cpp
 $(BLD)/material.o: $(SRC)/material.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-.PHONY: dirSetup dirCleanup clean run lldb
+.PHONY: dirSetup dirCleanup clean run debug
 
 dirSetup:
 	mkdir build
@@ -61,5 +64,5 @@ clean:
 run:
 	./bin/game.app
 
-lldb:
+debug:
 	lldb ./bin/game.app

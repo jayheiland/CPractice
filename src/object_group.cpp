@@ -1,5 +1,44 @@
 #include "object_group.h"
 
+void loadObjectRules_Json(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath){
+    JsonObject *rulesFromFile = parseJsonFile(objRulesPath);
+    for(auto rule : rulesFromFile->getJsonArray("objectRules").getJsonObjectArray()){
+        ObjectRule newRule;
+        objectCode objCode = 0;
+        newRule.maxContainerVolume = 0;
+        newRule.length=0;
+        newRule.height=0;
+        newRule.width=0;
+
+        newRule.name = rule->getString("name");
+        objCode = rule->getDouble("objectCode");
+        if(rule->getJsonArray("materialTags").size() > 0){
+            newRule.alternativeMaterials = rule->getJsonArray("materialTags").getStringArray();
+        }
+        for(auto cmpRule : rule->getJsonArray("components").getJsonObjectArray()){
+            ObjectRuleComponentReq multiRuleCmpReq;
+            multiRuleCmpReq.count = (int)cmpRule->getDouble("count");
+            for(auto alt : cmpRule->getJsonArray("alternativeComponents").getDoubleArray()){
+                multiRuleCmpReq.alternativeComponents.push_back((objectCode)alt);
+            }
+            newRule.components.push_back(multiRuleCmpReq);
+        }
+        for(auto site : rule->getJsonArray("equippableSites").getDoubleArray()){
+            newRule.equippableSites.push_back((objectCode)site);
+        }
+        if(rule->getDouble("length") != -1.0){
+            newRule.length = rule->getDouble("length");
+            newRule.width = rule->getDouble("width");
+            newRule.height = rule->getDouble("height");
+        }
+        if(rule->getDouble("maxContainerVolume") != -1.0){
+            newRule.maxContainerVolume = rule->getDouble("maxContainerVolume");
+        }
+
+        objRules->insert(std::make_pair(objCode, newRule));
+    }
+}
+
 void loadObjectRules(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath){
     ObjectRule newRule;
     objectCode objCode = 0;
@@ -21,7 +60,7 @@ void loadObjectRules(std::unordered_map<objectCode, ObjectRule> *objRules, std::
             if(objCode != 0){
                 objRules->insert(std::make_pair(objCode, newRule));
                 objCode = 0;
-                newRule.requirements.clear();
+                newRule.components.clear();
                 newRule.name.clear();
                 newRule.equippableSites.clear();
                 newRule.maxContainerVolume=0;
@@ -66,13 +105,13 @@ void loadObjectRules(std::unordered_map<objectCode, ObjectRule> *objRules, std::
                     ObjectRuleComponentReq multiRuleReq;
                     std::vector<std::string> objReqTokens;
                     splitString(&objReqTokens, req, '=');
-                    multiRuleReq.objectCount = std::stoi(objReqTokens[1]);
+                    multiRuleReq.count = std::stoi(objReqTokens[1]);
                     std::vector<std::string> altReqs;
                     splitString(&altReqs, objReqTokens[0], '|');
                     for(std::string alt : altReqs){
-                        multiRuleReq.alternativeObjects.push_back(std::stoi(alt));
+                        multiRuleReq.alternativeComponents.push_back(std::stoi(alt));
                     }
-                    newRule.requirements.push_back(multiRuleReq);
+                    newRule.components.push_back(multiRuleReq);
                 }
             }
             else if(tokens[0] == "equippableSites"){
@@ -117,9 +156,9 @@ ID createObject(gameData *data, objectCode objCode){
         ObjectRule rule = data->objRules[objCode];
         newObj.name = rule.name;
         newObj.objCode = objCode;
-        for(ObjectRuleComponentReq req : rule.requirements){
-            for(int idx = 0; idx < req.objectCount; idx++){
-                newObj.components.push_back(createObject(data, req.alternativeObjects[0]));
+        for(ObjectRuleComponentReq req : rule.components){
+            for(int idx = 0; idx < req.count; idx++){
+                newObj.components.push_back(createObject(data, req.alternativeComponents[0]));
             }
         }
         newObj.materialName = getMaterialWithTag(&data->matGroup, rule.alternativeMaterials[0]);
@@ -127,6 +166,7 @@ ID createObject(gameData *data, objectCode objCode){
         newObj.width = rule.width;
         newObj.height = rule.height;
         newObj.maxContainerVolume = rule.maxContainerVolume;
+        newObj.integrity = (newObj.length * newObj.width * newObj.height) * data->matGroup.at(newObj.materialName).density * 4.0;
         ID id = genID();
         data->objGroup.insert(std::make_pair(id, newObj));
         return id;
@@ -170,4 +210,30 @@ void printObjects(std::unordered_map<ID, Object> *objGroup){
     for(std::pair<ID, Object> obj : *objGroup){
         printObject(objGroup, &obj.second);
     }
+}
+
+ID getWeapon(std::unordered_map<ID, Object> *objGroup, ID body){
+    for(auto& cmp : objGroup->at(body).components){
+        if(objGroup->at(cmp).materialName == "metal"){
+            return cmp;
+        }
+        getWeapon(objGroup, cmp);
+    }
+    return NULL_ID;
+}
+
+void attackObject(gameData *data, ID weapon, ID subject){
+    if(subject != NULL_ID){
+        data->objGroup.at(subject).integrity -= getMass(data, weapon);
+        if(data->objGroup.at(subject).integrity <= 0){
+            data->objGroup.at(subject).integrity = 0;
+        }
+        std::cout << data->objGroup.at(weapon).name << " dealt " << getMass(data, weapon) << " damage to " 
+            << data->objGroup.at(subject).name << ", reducing its integrity to " << data->objGroup.at(subject).integrity << "\n";
+    }
+}
+
+double getMass(gameData *data, ID subject){
+    Object obj = data->objGroup.at(subject);
+    return obj.length * obj.width * obj.height * data->matGroup.at(obj.materialName).density;
 }

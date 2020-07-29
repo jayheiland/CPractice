@@ -25,9 +25,9 @@ typedef struct{
 
 typedef struct{
     //number of objects required
-    int objectCount;
+    int count;
     //the set of objects that could fulfill this requirement
-    std::vector<objectCode> alternativeObjects;
+    std::vector<objectCode> alternativeComponents;
 } ObjectRuleComponentReq;
 
 typedef struct{
@@ -35,7 +35,7 @@ typedef struct{
     //the set of Materials that could constitute a single-material object
     std::vector<std::string> alternativeMaterials;
     //the set of component objects (if this is not a continuous object)
-    std::vector<ObjectRuleComponentReq> requirements; 
+    std::vector<ObjectRuleComponentReq> components; 
     double length,width,height;
     std::vector<objectCode> equippableSites; //id list of body part types/objects that this object can be equipped on
     double maxContainerVolume;

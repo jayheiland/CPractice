@@ -25,11 +25,14 @@ typedef struct{
 } Faction;
 
 typedef struct{
+    //creature data
     std::string name;
     std::string speciesName;
     ID body;
     creatureCode crtCode;
     factionCode fctCode;
+    //battle data
+    ID battleTarget;
     //pathing data
     worldLoc loc;
     bool currentlyPathing; //true if creature is actively following its given path

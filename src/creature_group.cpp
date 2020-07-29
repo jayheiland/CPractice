@@ -1,5 +1,15 @@
 #include "creature_group.h"
 
+void loadCreatureRules_Json(std::unordered_map<creatureCode, CreatureRule> *crtRules, std::string path){
+    CreatureRule crtRule;
+    JsonObject *rulesFromFile = parseJsonFile(path);
+    for(auto rule : rulesFromFile->getJsonArray("creatureRules").getJsonObjectArray()){
+        crtRule.speciesName = rule->getString("speciesName");
+        crtRule.bodyCode = rule->getDouble("body");
+        crtRules->insert(std::make_pair((creatureCode)rule->getDouble("creatureCode"), crtRule));
+    }
+}
+
 void loadCreatureRules(std::unordered_map<creatureCode, CreatureRule> *crtRules, std::string path){
     CreatureRule crtRule;
     creatureCode crtCode = 0;
@@ -55,6 +65,17 @@ void loadCreatureRules(std::unordered_map<creatureCode, CreatureRule> *crtRules,
         lineNum++;
     }
     infile.close();
+}
+
+void loadFactions_Json(std::unordered_map<factionCode, Faction> *fctGroup, std::string path){
+    Faction newFaction;
+    JsonObject *factionsFromFile = parseJsonFile(path);
+    for(auto fct : factionsFromFile->getJsonArray("creatureRules").getJsonObjectArray()){
+        newFaction.name = fct->getString("name");
+        for(double enemy : fct->getJsonArray("enemies").getDoubleArray()){
+            newFaction.enemies.push_back((factionCode)enemy);
+        }
+    }
 }
 
 void loadFactions(std::unordered_map<factionCode, Faction> *fctGroup, std::string path){
@@ -124,6 +145,7 @@ ID createCreature(gameData *data, creatureCode crtCode, std::string name, factio
     crt.fctCode = fctCode;
     crt.speciesName = data->crtRules[crtCode].speciesName;
     crt.body = createObject(data, data->crtRules[crtCode].bodyCode);
+    crt.battleTarget = 0;
     ID id = genID();
     data->crtGroup.insert(std::make_pair(id, crt));
     return id;
@@ -137,7 +159,32 @@ void printCreatures(std::unordered_map<ID, Creature> *crtGroup){
 }
 
 void processCreatures(gameData *data){
-    for(auto& crt : data->crtGroup){
+    determineBattleTargets(data);
+    processBattles(data);
+}
 
+void determineBattleTargets(gameData *data){
+    for(auto& crt : data->crtGroup){
+        for(auto& other : data->crtGroup){
+            auto crtEnemies = data->fctGroup.at(crt.second.fctCode).enemies;
+            if(crt.first != other.first && find(crtEnemies.begin(), crtEnemies.end(), other.second.fctCode)!=crtEnemies.end()){
+                initiateBattle(&data->crtGroup, crt.first, other.first);
+                return;
+            }
+        }
     }
+}
+
+void processBattles(gameData *data){
+    for(auto& crt : data->crtGroup){
+        attackObject(data, getWeapon(&data->objGroup, crt.second.body), crt.second.battleTarget);
+    }
+}
+
+void initiateBattle(std::unordered_map<ID, Creature> *crtGroup, ID aggressor, ID subject){
+    crtGroup->at(aggressor).battleTarget = subject;
+}
+
+void endBattle(std::unordered_map<ID, Creature> *crtGroup, ID aggressor, ID subject){
+    crtGroup->at(aggressor).battleTarget = NULL_ID;
 }
