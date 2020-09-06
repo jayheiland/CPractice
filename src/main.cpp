@@ -52,23 +52,32 @@ void gameLoop(){
     loadMaterials_Json(&data.matGroup, filePath + "materials.json");
     printMaterials(&data.matGroup);
 
-    // loadObjectRules(&data.objRules, filePath + "multiObjectRules.txt");
-    // loadObjectRules(&data.objRules, filePath + "elementalObjectRules.txt");
-    loadObjectRules_Json(&data.objRules, filePath + "multiObjectRules.json");
     loadObjectRules_Json(&data.objRules, filePath + "elementalObjectRules.json");
+    loadObjectRules_Json(&data.objRules, filePath + "humanBody_objectRules.json");
+    loadComponentMaps(&data.componentMaps, filePath + "componentMaps.json");
 
     loadCreatureRules_Json(&data.crtRules, filePath + "creatureRules.json");
-    loadFactions_Json(&data.fctGroup, filePath + "factions.txt");
+    loadFactions_Json(&data.fctGroup, filePath + "factions.json");
 
-    ID testHuman1 = createCreature(&data, 100000, "Luneth", 100000);
+    ID testHuman1 = createCreature(&data, 100000, "Luneth", 228986);
     ID testHuman2 = createCreature(&data, 100000, "Ingus", 773941);
     printCreatures(&data.crtGroup);
-    printObjects(&data.objGroup);
+    //printObjects(&data.objGroup);
     ID testEquipment = createObject(&data, 735631);
-    equipObject(&data, getBody(&data.crtGroup, testHuman1), testEquipment);
-    printObjects(&data.objGroup);
-    unequipObject(&data.objGroup, getBody(&data.crtGroup, testHuman1), testEquipment);
-    printObjects(&data.objGroup);
+    linkObjects(&data, getBody(&data.crtGroup, testHuman1), _ADJOINS, testEquipment, false, 100);
+    //printObjects(&data.objGroup);
+    unlinkObjects(&data, getBody(&data.crtGroup, testHuman1), testEquipment);
+    //printObjects(&data.objGroup);
+
+    //equip weapon
+    ID testWeapon = createObject(&data, 472680);
+    std::vector<ID> grippers = getLinkedObjs(&data, data.crtGroup.at(testHuman2).body, _ANY, true, "gripper");
+    linkObjects(&data, grippers[0], _ADJOINS, testWeapon, false, 100);
+
+    setBattleTarget(&data.crtGroup, testHuman2, testHuman1);
+    setBattleTarget(&data.crtGroup, testHuman1, testHuman2);
+
+    //printObjsWithCode(&data, 325879);
 
     //game loop
     while(!ENGINE_DATA.quitGame){

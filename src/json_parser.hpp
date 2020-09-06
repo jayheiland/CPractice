@@ -106,7 +106,7 @@ class JsonObject{
                     return nameValuePairs[idx].value.booleanValue;
                 }
             }
-            throw std::runtime_error("JSON Parser: Could not find boolean value for name' " + name + "'");
+            //throw std::runtime_error("JSON Parser: Could not find boolean value for name' " + name + "'");
             return false;
         }
 
@@ -144,7 +144,7 @@ class JsonObject{
 };
 
 inline void parserLog(std::string type, std::string content){
-    std::cout << "JSON Parser Log: Parsed JSON " << type << " '" << content << "'." << std::endl;
+    //std::cout << "JSON Parser Log: Parsed JSON " << type << " '" << content << "'." << std::endl;
 }
 
 inline std::string parseJsonString(int *idx, std::string str){

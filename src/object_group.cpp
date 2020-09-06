@@ -5,235 +5,256 @@ void loadObjectRules_Json(std::unordered_map<objectCode, ObjectRule> *objRules, 
     for(auto rule : rulesFromFile->getJsonArray("objectRules").getJsonObjectArray()){
         ObjectRule newRule;
         objectCode objCode = 0;
-        newRule.maxContainerVolume = 0;
-        newRule.length=0;
-        newRule.height=0;
-        newRule.width=0;
+        newRule.defaultLength=0;
+        newRule.defaultHeight=0;
+        newRule.defaultWidth=0;
 
         newRule.name = rule->getString("name");
         objCode = rule->getDouble("objectCode");
-        if(rule->getJsonArray("materialTags").size() > 0){
-            newRule.alternativeMaterials = rule->getJsonArray("materialTags").getStringArray();
+        for(auto mat : rule->getJsonArray("materialTags").getStringArray()){
+            newRule.materialTags.push_back(mat);
         }
-        for(auto cmpRule : rule->getJsonArray("components").getJsonObjectArray()){
-            ObjectRuleComponentReq multiRuleCmpReq;
-            multiRuleCmpReq.count = (int)cmpRule->getDouble("count");
-            for(auto alt : cmpRule->getJsonArray("alternativeComponents").getDoubleArray()){
-                multiRuleCmpReq.alternativeComponents.push_back((objectCode)alt);
-            }
-            newRule.components.push_back(multiRuleCmpReq);
-        }
-        for(auto site : rule->getJsonArray("equippableSites").getDoubleArray()){
-            newRule.equippableSites.push_back((objectCode)site);
+        if(rule->getJsonArray("usageTags").size() > 0){
+            newRule.usageTags = rule->getJsonArray("usageTags").getStringArray();
         }
         if(rule->getDouble("length") != -1.0){
-            newRule.length = rule->getDouble("length");
-            newRule.width = rule->getDouble("width");
-            newRule.height = rule->getDouble("height");
-        }
-        if(rule->getDouble("maxContainerVolume") != -1.0){
-            newRule.maxContainerVolume = rule->getDouble("maxContainerVolume");
+            newRule.defaultLength = rule->getDouble("length");
+            newRule.defaultWidth = rule->getDouble("width");
+            newRule.defaultHeight = rule->getDouble("height");
         }
 
         objRules->insert(std::make_pair(objCode, newRule));
     }
 }
 
-void loadObjectRules(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath){
-    ObjectRule newRule;
-    objectCode objCode = 0;
-    std::string line;
-    int lineNum = 1;
-    newRule.maxContainerVolume = 0;
-    newRule.length=0;
-    newRule.height=0;
-    newRule.width=0;
-    std::ifstream infile;
-    //read ElementalObject rules
-    infile.open(objRulesPath);
-    if(!infile.is_open()){
-        logError("Could not open elemental object rules file: '" + objRulesPath + "'");
-        return;
+void loadComponentMaps(std::unordered_map<std::string, ComponentMap> *componentMaps, std::string cmpMapsPath){
+    JsonObject *mapsFromFile = parseJsonFile(cmpMapsPath);
+    for(auto map : mapsFromFile->getJsonArray("componentMaps").getJsonObjectArray()){
+        ComponentMap newMap;
+        for(auto node : map->getJsonArray("map").getJsonObjectArray()){
+            CmpMapNode newNode;
+            for(auto altCmp : node->getJsonArray("alternativeComponents").getDoubleArray()){
+                newNode.alternativeComponents.push_back(altCmp);
+            }
+            for(auto mapLink : node->getJsonArray("objectLinks").getJsonObjectArray()){
+                CmpMapLink newObjLink;
+                if(mapLink->getString("objLinkType") == "adjoins"){
+                    newObjLink.type = _ADJOINS;
+                }
+                else if(mapLink->getString("objLinkType") == "wraps"){
+                    newObjLink.type = _WRAPS;
+                }
+                else if(mapLink->getString("objLinkType") == "wrapped by"){
+                    newObjLink.type = _WRAPPED_BY;
+                }
+                newObjLink.isFunctional = true;
+                newObjLink.strength = mapLink->getDouble("strength");
+                newObjLink.subject = mapLink->getString("subject");
+
+                newNode.linkedObjects.push_back(newObjLink);
+            }
+            newMap.map.insert(std::make_pair(node->getString("name"), newNode));
+        }
+        componentMaps->insert(std::make_pair(map->getString("name"), newMap));
     }
-    while (std::getline(infile, line)){
-        if(line == "}"){
-            if(objCode != 0){
-                objRules->insert(std::make_pair(objCode, newRule));
-                objCode = 0;
-                newRule.components.clear();
-                newRule.name.clear();
-                newRule.equippableSites.clear();
-                newRule.maxContainerVolume=0;
-                newRule.length=0;
-                newRule.height=0;
-                newRule.width=0;
-            }
-            else{
-                logError("Could not process object rules file: '" + objRulesPath + "', at Line " + std::to_string(lineNum) + ". Parser object code is " + std::to_string(objCode));
-            }
-        }
-        else if(line.size() > 1){
-            std::vector<std::string> tokens;
-            splitString(&tokens, line, ':');
-            //parse string arg
-            tokens[0] = stripChar(tokens[0], ' ');
-            if(strContains(tokens[1], 2, '\'')){
-                if(tokens[0] == "name"){
-                    tokens[1] = stripCharAround(tokens[1], '\'');
-                    newRule.name = tokens[1];
-                }
-            }
-            //parse object code
-            else if(tokens[0] == "objectCode"){
-                objCode = std::stoi(stripChar(tokens[1], ' '));
-            }
-            //parse material tags
-            else if(tokens[0] == "materialTags"){
-                tokens[1] = stripChar(tokens[1], ' ');
-                std::vector<std::string> mTags;
-                splitString(&mTags, tokens[1], ',');
-                newRule.alternativeMaterials.clear();
-                newRule.alternativeMaterials = mTags;
-            }
-            else if(tokens[0] == "components"){
-                tokens[1] = stripChar(tokens[1], ' ');
-                tokens[1] = stripChar(tokens[1], '(');
-                tokens[1] = stripChar(tokens[1], ')');
-                std::vector<std::string> objReqs;
-                splitString(&objReqs, tokens[1], ',');
-                for(std::string req : objReqs){
-                    ObjectRuleComponentReq multiRuleReq;
-                    std::vector<std::string> objReqTokens;
-                    splitString(&objReqTokens, req, '=');
-                    multiRuleReq.count = std::stoi(objReqTokens[1]);
-                    std::vector<std::string> altReqs;
-                    splitString(&altReqs, objReqTokens[0], '|');
-                    for(std::string alt : altReqs){
-                        multiRuleReq.alternativeComponents.push_back(std::stoi(alt));
-                    }
-                    newRule.components.push_back(multiRuleReq);
-                }
-            }
-            else if(tokens[0] == "equippableSites"){
-                tokens[1] = stripChar(tokens[1], ' ');
-                std::vector<std::string> eqSites;
-                splitString(&eqSites, tokens[1], ',');
-                for(std::string site : eqSites){
-                    newRule.equippableSites.push_back(std::stoi(site));
-                }
-            }
-            else if(tokens[0] == "length"){
-                newRule.length = std::stod(stripChar(tokens[1], ' '));
-            }
-            else if(tokens[0] == "width"){
-                newRule.width = std::stod(stripChar(tokens[1], ' '));
-            }
-            else if(tokens[0] == "height"){
-                newRule.height = std::stod(stripChar(tokens[1], ' '));
-            }
-            else if(tokens[0] == "maxContainerVolume"){
-                newRule.maxContainerVolume = std::stoi(stripChar(tokens[1], ' '));
-            }
-            else{
-                logError("Could not process elemental object rules file: '" + objRulesPath + "', at Line " + std::to_string(lineNum));
-            }
-        }
-        else if(line == "{" || line == ""){
-            
-        }
-        else{
-            logError("Could not process elemental object rules file: '" + objRulesPath + "', at Line " + std::to_string(lineNum));
-            return;
-        }
-        lineNum++;
-    }
-    infile.close();
 }
 
-ID createObject(gameData *data, objectCode objCode){
-    if(data->objRules.find(objCode) != data->objRules.end()){
-        Object newObj;
-        ObjectRule rule = data->objRules[objCode];
-        newObj.name = rule.name;
-        newObj.objCode = objCode;
-        for(ObjectRuleComponentReq req : rule.components){
-            for(int idx = 0; idx < req.count; idx++){
-                newObj.components.push_back(createObject(data, req.alternativeComponents[0]));
-            }
-        }
-        newObj.materialName = getMaterialWithTag(&data->matGroup, rule.alternativeMaterials[0]);
-        newObj.length = rule.length;
-        newObj.width = rule.width;
-        newObj.height = rule.height;
-        newObj.maxContainerVolume = rule.maxContainerVolume;
-        newObj.integrity = (newObj.length * newObj.width * newObj.height) * data->matGroup.at(newObj.materialName).density * 4.0;
-        ID id = genID();
-        data->objGroup.insert(std::make_pair(id, newObj));
-        return id;
+ID createObject(gameData *dt, objectCode objCode){
+    Object newObj;
+    ObjectRule rule = dt->objRules.at(objCode);
+    newObj.name = rule.name;
+    newObj.objCode = objCode;
+    newObj.length = rule.defaultLength;
+    newObj.width = rule.defaultWidth;
+    newObj.height = rule.defaultHeight;
+    newObj.materialName = dt->objRules.at(objCode).materialTags[0];
+    newObj.materialName = getMaterialWithTag(&dt->matGroup, dt->objRules.at(objCode).materialTags[0]);
+    newObj.integrity = (newObj.length * newObj.width * newObj.height) * dt->matGroup.at(newObj.materialName).density;
+    ID id = genID();
+    dt->objGroup.insert(std::make_pair(id, newObj));
+    return id;
+}
+
+ID createObjectsFromComponentMap(gameData *dt, std::string mapName){
+    ComponentMap cm = dt->componentMaps.at(mapName);
+    std::vector<std::pair<std::string, ID> > cmpNamesToIDsMap;
+    for(auto node : cm.map){
+        cmpNamesToIDsMap.push_back(std::make_pair(node.first, createObject(dt, node.second.alternativeComponents[0])));
     }
-    return 0;
+    for(auto pair : cmpNamesToIDsMap){
+        Object *obj = ao(dt, pair.second);
+        for(auto mapLink : cm.map.at(pair.first).linkedObjects){
+            ObjectLink objLink;
+            for(auto pr : cmpNamesToIDsMap){
+                if(pr.first == mapLink.subject){
+                    objLink.subject = pr.second;
+                    break;
+                }
+            }
+            objLink.isFunctional = mapLink.isFunctional;
+            objLink.strength = mapLink.strength;
+            objLink.type = mapLink.type;
+            obj->linkedObjects.push_back(objLink);
+        }
+    }
+    return cmpNamesToIDsMap[0].second;
 }
 
 void removeObject(std::unordered_map<ID, Object> *objGroup, ID id_){
-    if(objGroup->find(id_) != objGroup->end()){
-        for(ID compId : objGroup->at(id_).components){
-            removeObject(objGroup, compId);
+    objGroup->erase(id_);
+}
+
+void linkObjects(gameData *dt, ID obj1, objLinkType linkType, ID obj2, bool isFunctional, double strength){
+    ObjectLink link1;
+    link1.type = linkType;
+    link1.isFunctional = isFunctional;
+    link1.strength = strength;
+    link1.subject = obj2;
+    ao(dt, obj1)->linkedObjects.push_back(link1);
+
+    ObjectLink link2;
+    if(linkType == _WRAPS){
+        link2.type = _WRAPPED_BY;
+    }
+    else if(linkType == _WRAPPED_BY){
+        link2.type = _WRAPS;
+    }
+    else{
+        link2.type = _ADJOINS;
+    }
+    link2.isFunctional = isFunctional;
+    link2.strength = strength;
+    link2.subject = obj1;
+    ao(dt, obj2)->linkedObjects.push_back(link2);
+}
+
+void unlinkObjects(gameData *dt, ID obj1, ID obj2){
+    std::vector<ObjectLink> *links1 = &dt->objGroup.at(obj1).linkedObjects;
+    for(auto itr = links1->begin(); itr != links1->end(); itr++){
+        if(itr->subject == obj2){
+            links1->erase(itr);
+            break;
         }
-        objGroup->erase(id_);
+    }
+
+    std::vector<ObjectLink> *links2 = &dt->objGroup.at(obj2).linkedObjects;
+    for(auto itr = links2->begin(); itr != links2->end(); itr++){
+        if(itr->subject == obj1){
+            links2->erase(itr);
+            break;
+        }
     }
 }
 
-void equipObject(gameData *data, ID equipper, ID equipment){
-    for(auto itr = data->objRules.at(data->objGroup.at(equipment).objCode).equippableSites.begin(); itr < data->objRules.at(data->objGroup.at(equipment).objCode).equippableSites.end(); itr++){
-        if(*itr == data->objGroup.at(equipper).objCode){
-            data->objGroup.at(equipper).equippedObjects.push_back(equipment);
-            data->objGroup.at(equipment).equippedSites.push_back(equipper);
-        }
-    }
-}
-
-void unequipObject(std::unordered_map<ID, Object> *objGroup, ID equipper, ID equipment){
-    for(auto itr = objGroup->at(equipper).equippedObjects.begin(); itr < objGroup->at(equipper).equippedObjects.end(); itr++){
-        if(*itr == equipment){
-            objGroup->at(equipper).equippedObjects.erase(itr);
-        }
-    }
-    for(auto itr = objGroup->at(equipment).equippedSites.begin(); itr < objGroup->at(equipment).equippedSites.end(); itr++){
-        if(*itr == equipper){
-            objGroup->at(equipment).equippedSites.erase(itr);
-        }
-    }
-}
-
-void printObjects(std::unordered_map<ID, Object> *objGroup){
+void printObjects(gameData *dt){
     std::cout << "------------------------------Loaded Objects----------------------------------" << std::endl;
-    for(std::pair<ID, Object> obj : *objGroup){
-        printObject(objGroup, &obj.second);
+    for(std::pair<ID, Object> obj : dt->objGroup){
+        printObject(&dt->objGroup, &dt->objRules, obj.first);
     }
 }
 
-ID getWeapon(std::unordered_map<ID, Object> *objGroup, ID body){
-    for(auto& cmp : objGroup->at(body).components){
-        if(objGroup->at(cmp).materialName == "metal"){
-            return cmp;
+std::vector<ID> getPhysWeapons(gameData *dt, ID body){
+    std::vector<ID> result;
+    std::vector<ID> grippers = getLinkedObjs(dt, body, _ANY, true, "gripper");
+    for(auto part : grippers){
+        std::vector<ID> adjoins = getLinkedObjs(dt, part, _ADJOINS, false, "");
+        result.insert(result.end(), adjoins.begin(), adjoins.end());
+    }
+    return result;
+}
+
+bool objHasUsageTag(gameData *dt, ID obj, std::string tag){
+    auto rule = dt->objRules.at(ao(dt, obj)->objCode);
+    if(tag == ""){
+        return true;
+    }
+    for(auto itr = rule.usageTags.begin(); itr < rule.usageTags.end(); itr++){
+        if(*itr == tag){
+            return true;
         }
-        getWeapon(objGroup, cmp);
     }
-    return NULL_ID;
+    return false;
 }
 
-void attackObject(gameData *data, ID weapon, ID subject){
+std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType, bool limitToFuncLinks, std::string usageTag, std::vector<ID> *visitedObjs){
+    std::vector<ID> result;
+    for(auto objLink : ao(dt, obj)->linkedObjects){
+        if(find(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == visitedObjs->end()){
+            if((objLink.type == linkType || linkType == _ANY) && ((objLink.isFunctional && limitToFuncLinks) || !limitToFuncLinks) && objHasUsageTag(dt, objLink.subject, usageTag)){
+                result.push_back(objLink.subject);
+            }
+        }
+    }
+    visitedObjs->push_back(obj);
+    for(auto objLink : ao(dt, obj)->linkedObjects){
+        if(find(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == visitedObjs->end()){
+            std::vector<ID> subResult = getLinkedObjs_Helper(dt, objLink.subject, linkType, limitToFuncLinks, usageTag, visitedObjs);
+            result.insert(result.end(), subResult.begin(), subResult.end());
+        }
+    }
+    return result;
+}
+
+/*
+To "not care" about a property:
+    linkType = _ANY
+    isFunctional = NULL
+    usageTag = ""
+*/
+std::vector<ID> getLinkedObjs(gameData *dt, ID obj, objLinkType linkType, bool limitToFuncLinks, std::string usageTag){
+    std::vector<ID> visitedObjs;
+    std::vector<ID> result;
+    if(objHasUsageTag(dt, obj, usageTag)){
+        result.push_back(obj);
+    }
+    std::vector<ID> subResult = getLinkedObjs_Helper(dt, obj, linkType, limitToFuncLinks, usageTag, &visitedObjs);
+    result.insert(result.end(), subResult.begin(), subResult.end());
+    return result;
+}
+
+void attackObject(gameData *dt, ID weapon, ID subject){
     if(subject != NULL_ID){
-        data->objGroup.at(subject).integrity -= getMass(data, weapon);
-        if(data->objGroup.at(subject).integrity <= 0){
-            data->objGroup.at(subject).integrity = 0;
+        Object *sub = ao(dt, subject);
+        sub->integrity -= getMass(dt, weapon);
+        if(sub->integrity <= 0){
+            sub->integrity = 0;
         }
-        std::cout << data->objGroup.at(weapon).name << " dealt " << getMass(data, weapon) << " damage to " 
-            << data->objGroup.at(subject).name << ", reducing its integrity to " << data->objGroup.at(subject).integrity << "\n";
+        std::cout << ao(dt, weapon)->name << " dealt " << getMass(dt, weapon) << " damage to " 
+            << ao(dt, subject)->name << ", reducing its integrity to " << ao(dt, subject)->integrity << "\n";
     }
 }
 
-double getMass(gameData *data, ID subject){
-    Object obj = data->objGroup.at(subject);
-    return obj.length * obj.width * obj.height * data->matGroup.at(obj.materialName).density;
+double getMass(gameData *dt, std::vector<ID> objs){
+    double result = 0;
+    for(auto obj : objs){
+        Object *oPtr = ao(dt, obj);
+        result += oPtr->height * oPtr->length * oPtr->width * dt->matGroup.at(oPtr->materialName).density;
+    }
+    return result;
+}
+
+double getMass(gameData *dt, ID obj){
+    Object *oPtr = ao(dt, obj);
+    return oPtr->height * oPtr->length * oPtr->width * dt->matGroup.at(oPtr->materialName).density;
+}
+
+Object *ao(gameData *dt, ID id){
+    return &dt->objGroup.at(id);
+}
+
+std::vector<ID> getObjsWithCode(gameData *dt, objectCode objCode){
+    std::vector<ID> result;
+    for(auto obj : dt->objGroup){
+        if(obj.second.objCode == objCode){
+            result.push_back(obj.first);
+        }
+    }
+    return result;
+}
+
+void printObjsWithCode(gameData *dt, objectCode objCode){
+    std::vector<ID> objs = getObjsWithCode(dt, objCode);
+    for(auto obj : objs){
+        printObject(&dt->objGroup, &dt->objRules, obj);
+    }
 }

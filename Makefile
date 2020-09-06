@@ -61,6 +61,10 @@ clean:
 	rm -f $(BLD)/*.o
 	rm -f $(BIN)/*.app
 
+rebuild:
+	make clean
+	make
+
 run:
 	./bin/game.app
 

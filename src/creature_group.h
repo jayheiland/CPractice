@@ -11,17 +11,20 @@
 struct gameData{
     std::unordered_map<ID, Object> objGroup;
     std::unordered_map<objectCode, ObjectRule> objRules;
+    std::unordered_map<std::string, ComponentMap> componentMaps;
     std::unordered_map<ID, Creature> crtGroup;
     std::unordered_map<creatureCode, CreatureRule> crtRules;
     std::unordered_map<factionCode, Faction> fctGroup;
     std::unordered_map<std::string, Material> matGroup;
 };
 
+Creature *ac(gameData *dt, ID crt);
+
 void loadCreatureRules_Json(std::unordered_map<creatureCode, CreatureRule> *crtRules, std::string path);
 
 void loadCreatureRules(std::unordered_map<creatureCode, CreatureRule> *crtRules, std::string path);
 
-ID createCreature(gameData *data, creatureCode crtCode, std::string name, factionCode factionName);
+ID createCreature(gameData *dt, creatureCode crtCode, std::string name, factionCode factionName);
 
 void printCreatures(std::unordered_map<ID, Creature> *crtGroup);
 
@@ -29,12 +32,10 @@ void loadFactions_Json(std::unordered_map<factionCode, Faction> *fctGroup, std::
 
 void loadFactions(std::unordered_map<factionCode, Faction> *fctGroup, std::string path);
 
-void processCreatures(gameData *data);
+void processCreatures(gameData *dt);
 
-void determineBattleTargets(gameData *data);
+void determineBattleTargets(gameData *dt);
 
-void processBattles(gameData *data);
+void processBattles(gameData *dt);
 
-void initiateBattle(std::unordered_map<ID, Creature> *crtGroup, ID aggressor, ID subject);
-
-void endBattle(std::unordered_map<ID, Creature> *crtGroup, ID aggressor, ID subject);
+void setBattleTarget(std::unordered_map<ID, Creature> *crtGroup, ID aggressor, ID subject);

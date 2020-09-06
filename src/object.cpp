@@ -1,22 +1,11 @@
 #include "object.h"
 
-void printObject(std::unordered_map<ID, Object> *objGroup, Object *obj){
-    printf("name: %s\n", obj->name.c_str());
-    printf("component id's: ");
-    for(ID id_ : obj->components){
-        printf("  %lu, ", id_);
+void printObject(std::unordered_map<ID, Object> *objGroup, std::unordered_map<objectCode, ObjectRule> *objRules, ID id){
+    Object obj = objGroup->at(id);
+    printf("name: %s\n", obj.name.c_str());
+    printf("usage tags: ");
+    for(std::string useTag : objRules->at(objGroup->at(id).objCode).usageTags){
+        printf("  %s, ", useTag.c_str());
     }
-    printf("\n");
-    printf("containedThings id's: ");
-    for(ID id_ : obj->containedObjects){
-        printf("  %lu\n", id_);
-    }
-    printf("\n");
-    std::cout << "equipped objects: " << std::endl;
-    for(ID id_ : obj->equippedObjects){
-        std::cout << "\t" << objGroup->at(id_).name << std::endl;
-    }
-    printf("maxContainerVolume: %f\n", obj->maxContainerVolume);
-    std::cout << "material name: " << obj->materialName << std::endl 
-        << "dimensions: " << obj->length << "," << obj->width << "," << obj->height << std::endl << std::endl;
+    printf("\n\n");
 }

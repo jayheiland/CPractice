@@ -17,12 +17,18 @@ void loadObjects(std::string path);
 //debug methods
 void printObjects(std::unordered_map<ID, Object> *objGroup);
 
-ID createObject(gameData *data, objectCode objCode);
+Object *ao(gameData *dt, ID id);
+ID createObject(gameData *dt, objectCode objCode);
+ID createObjectsFromComponentMap(gameData *dt, std::string mapName);
 void removeObject(std::unordered_map<ID, Object> *objGroup, ID id_);
 void loadObjectRules_Json(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath);
-void loadObjectRules(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath);
-void equipObject(gameData *data, ID equipper, ID equipment);
-void unequipObject(std::unordered_map<ID, Object> *objGroup, ID equipper, ID equipment);
-ID getWeapon(std::unordered_map<ID, Object> *objGroup, ID body);
-void attackObject(gameData *data, ID weapon, ID subject);
-double getMass(gameData *data, ID subject);
+void loadComponentMaps(std::unordered_map<std::string, ComponentMap> *componentMaps, std::string cmpMapsPath);
+void linkObjects(gameData *dt, ID obj1, objLinkType linkType, ID obj2, bool isFunctional, double strength);
+void unlinkObjects(gameData *dt, ID obj1, ID obj2);
+std::vector<ID> getPhysWeapons(gameData *dt, ID body);
+bool objHasUsageTag(gameData *dt, ID obj, std::string tag);
+std::vector<ID> getLinkedObjs(gameData *dt, ID obj, objLinkType linkType, bool limitToFuncLinks, std::string usageTag);
+void attackObject(gameData *dt, ID weapon, ID subject);
+double getMass(gameData *dt, ID subject);
+std::vector<ID> getObjsWithCode(gameData *dt, objectCode objCode);
+void printObjsWithCode(gameData *dt, objectCode objCode);

@@ -27,7 +27,6 @@ typedef struct{
 typedef struct{
     //creature data
     std::string name;
-    std::string speciesName;
     ID body;
     creatureCode crtCode;
     factionCode fctCode;
@@ -41,7 +40,7 @@ typedef struct{
 
 typedef struct{
     std::string speciesName;
-    objectCode bodyCode;
+    std::string bodyMapName;
 } CreatureRule;
 
 
