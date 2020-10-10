@@ -81,7 +81,7 @@ class JsonObject{
         std::vector<nameValuePair> nameValuePairs;
     public:
         std::string getString(std::string name){
-            for(int idx = 0; idx < nameValuePairs.size(); idx++){
+            for(uint idx = 0; idx < nameValuePairs.size(); idx++){
                 if(nameValuePairs[idx].name == name){
                     return nameValuePairs[idx].value.stringValue;
                 }
@@ -91,7 +91,7 @@ class JsonObject{
         }
 
         double getDouble(std::string name){
-            for(int idx = 0; idx < nameValuePairs.size(); idx++){
+            for(uint idx = 0; idx < nameValuePairs.size(); idx++){
                 if(nameValuePairs[idx].name == name){
                     return nameValuePairs[idx].value.doubleValue;
                 }
@@ -101,7 +101,7 @@ class JsonObject{
         }
 
         bool getBool(std::string name){
-            for(int idx = 0; idx < nameValuePairs.size(); idx++){
+            for(uint idx = 0; idx < nameValuePairs.size(); idx++){
                 if(nameValuePairs[idx].name == name){
                     return nameValuePairs[idx].value.booleanValue;
                 }
@@ -112,7 +112,7 @@ class JsonObject{
 
         JsonObject getJsonObject(std::string name){
             JsonObject empty;
-            for(int idx = 0; idx < nameValuePairs.size(); idx++){
+            for(uint idx = 0; idx < nameValuePairs.size(); idx++){
                 if(nameValuePairs[idx].name == name){
                     return *nameValuePairs[idx].value.objectValue;
                 }
@@ -123,7 +123,7 @@ class JsonObject{
 
         JsonArray getJsonArray(std::string name){
             JsonArray empty;
-            for(int idx = 0; idx < nameValuePairs.size(); idx++){
+            for(uint idx = 0; idx < nameValuePairs.size(); idx++){
                 if(nameValuePairs[idx].name == name){
                     return *nameValuePairs[idx].value.arrayValue;
                 }

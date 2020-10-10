@@ -179,7 +179,7 @@ bool objHasUsageTag(gameData *dt, ID obj, std::string tag){
 std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType, bool limitToFuncLinks, std::string usageTag, std::vector<ID> *visitedObjs){
     std::vector<ID> result;
     for(auto objLink : ao(dt, obj)->linkedObjects){
-        if(find(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == visitedObjs->end()){
+        if(std::count(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == 0){
             if((objLink.type == linkType || linkType == _ANY) && ((objLink.isFunctional && limitToFuncLinks) || !limitToFuncLinks) && objHasUsageTag(dt, objLink.subject, usageTag)){
                 result.push_back(objLink.subject);
             }
@@ -187,7 +187,7 @@ std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType,
     }
     visitedObjs->push_back(obj);
     for(auto objLink : ao(dt, obj)->linkedObjects){
-        if(find(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == visitedObjs->end()){
+        if(std::count(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == 0){
             std::vector<ID> subResult = getLinkedObjs_Helper(dt, objLink.subject, linkType, limitToFuncLinks, usageTag, visitedObjs);
             result.insert(result.end(), subResult.begin(), subResult.end());
         }

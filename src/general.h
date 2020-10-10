@@ -6,6 +6,7 @@
 #include <string.h>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 #define NULL_ID 0
 

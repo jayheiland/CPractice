@@ -8,14 +8,14 @@
 #include "general.h"
 #include "material.h"
 
-typedef unsigned int objectCode;
+typedef uint objectCode;
 
 enum objLinkType{_ADJOINS, _WRAPS, _WRAPPED_BY, _ANY};
 
 typedef struct{
     enum objLinkType type;
     bool isFunctional;
-    unsigned int strength;
+    uint strength;
     ID subject;
 } ObjectLink;
 
@@ -32,7 +32,7 @@ typedef struct{
 typedef struct{
     enum objLinkType type;
     bool isFunctional;
-    unsigned int strength;
+    uint strength;
     std::string subject;
 } CmpMapLink;
 

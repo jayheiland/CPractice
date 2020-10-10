@@ -6,3 +6,5 @@
 external/*
 docs/*
 data/*
+shaders/*
+textures/*

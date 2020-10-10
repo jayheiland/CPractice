@@ -24,7 +24,7 @@ typedef struct worldNode{
     Vec3 loc;
     int nodeType;
     int visited_Pathing;
-    unsigned int distance_Pathing;
+    uint distance_Pathing;
     struct worldNode* east;
     struct worldNode* west;
     struct worldNode* north;

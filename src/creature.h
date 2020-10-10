@@ -11,8 +11,8 @@
 #include "world.h"
 #include "object.h"
 
-typedef unsigned int creatureCode;
-typedef unsigned int factionCode;
+typedef uint creatureCode;
+typedef uint factionCode;
 
 typedef struct{
     factionCode faction;

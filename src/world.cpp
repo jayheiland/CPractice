@@ -23,7 +23,7 @@ void printPath(Vec3 *path, int length){
 }
 
 worldNode *getNearestNeighbor(worldNode *node, Vec3 *worldSize){
-    int smallestDist = INT_MAX;
+    uint smallestDist = INT_MAX;
     worldNode *nearest = NULL;
     if(node->loc.x > 0 && node->east->distance_Pathing < smallestDist){ nearest = node->east; smallestDist = node->east->distance_Pathing; }
     if(node->loc.x < worldSize->x-1 && node->west->distance_Pathing < smallestDist){ nearest = node->west; smallestDist = node->west->distance_Pathing; }
@@ -145,7 +145,7 @@ void quicksort(worldNode ***world, Vec3 *unvisNodes, int first, int last){
 }
 
 void markNodeNeighborsDistances(worldNode ***world, worldNode *curr, Vec3 *end, int edgeLen, Vec3 *worldSize){
-    int calcLen = (curr->distance_Pathing) + edgeLen;
+    uint calcLen = (curr->distance_Pathing) + edgeLen;
     if(curr->loc.x > 0 && !curr->east->visited_Pathing && calcLen < curr->east->distance_Pathing){
         curr->east->distance_Pathing = calcLen;
         //printf("Node at %d,%d,%d had east marked\n", curr->loc.x, curr->loc.y, curr->loc.z);

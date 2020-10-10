@@ -3,10 +3,18 @@
 #include <unordered_map>
 #include <fstream>
 
+
 #include "general.h"
 #include "creature.h"
 #include "object_group.h"
 #include "json_parser.hpp"
+
+struct engineData {
+    char debugConsoleStr[1024];
+    int defaultGuiBkgColor[4];
+    int windowWidth, windowHeight;
+    int debugMode;
+};
 
 struct gameData{
     std::unordered_map<ID, Object> objGroup;

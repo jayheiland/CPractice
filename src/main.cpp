@@ -5,15 +5,13 @@
 #include <unordered_map>
 #include <iostream>
 
-#include <SDL2/SDL.h>
-
 #include "world.h"
 #include "general.h"
-#include "user_input.h"
-#include "graphics.h"
 #include "creature_group.h"
 #include "object_group.h"
 #include "material_group.h"
+
+#include "golden_plains.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
@@ -35,8 +33,6 @@ void testWorld(){
 void gameSetup(){
     srand(88393401);
     masterIDCounter = 1;
-    ENGINE_DATA.quitGame = 0;
-    setupGraphics(&ENGINE_DATA);
 }
 
 void processModels(gameData *data){
@@ -46,9 +42,10 @@ void processModels(gameData *data){
 void gameLoop(){
     gameData data;
     //setup GUI
+    GraphicsLayer grph("./shaders/vert.spv", "./shaders/frag.spv");
 
     //test
-    std::string filePath = "/Users/jayheiland/Projects/Cartwright/data/";
+    std::string filePath = "./data/";
     loadMaterials_Json(&data.matGroup, filePath + "materials.json");
     printMaterials(&data.matGroup);
 
@@ -80,20 +77,16 @@ void gameLoop(){
     //printObjsWithCode(&data, 325879);
 
     //game loop
-    while(!ENGINE_DATA.quitGame){
-        processUserInputs();
+    while(!grph.windowShouldClose()){
         processModels(&data);
-        drawGraphics(&ENGINE_DATA);
+        grph.draw();
     }
-}
 
-void gameShutdown(){
-    shutdownGraphics(&ENGINE_DATA);
+    grph.cleanup();
 }
 
 int main(int argc, char** args) {
     gameSetup();
     gameLoop();
-    gameShutdown();
     return 0;
 }
