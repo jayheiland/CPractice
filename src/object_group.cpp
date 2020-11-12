@@ -53,7 +53,7 @@ void loadComponentMaps(std::unordered_map<std::string, ComponentMap> *componentM
 
                 newNode.linkedObjects.push_back(newObjLink);
             }
-            newMap.map.insert(std::make_pair(node->getString("name"), newNode));
+            newMap.map[node->getString("name")] = newNode;
         }
         componentMaps->insert(std::make_pair(map->getString("name"), newMap));
     }
@@ -71,7 +71,7 @@ ID createObject(gameData *dt, objectCode objCode){
     newObj.materialName = getMaterialWithTag(&dt->matGroup, dt->objRules.at(objCode).materialTags[0]);
     newObj.integrity = (newObj.length * newObj.width * newObj.height) * dt->matGroup.at(newObj.materialName).density;
     ID id = genID();
-    dt->objGroup.insert(std::make_pair(id, newObj));
+    dt->objGroup[id] = newObj;
     return id;
 }
 
@@ -155,9 +155,9 @@ void printObjects(gameData *dt){
 
 std::vector<ID> getPhysWeapons(gameData *dt, ID body){
     std::vector<ID> result;
-    std::vector<ID> grippers = getLinkedObjs(dt, body, _ANY, true, "gripper");
+    std::vector<ID> grippers = getLinkedObjs(dt, body, _ANY, FUNCTIONAL, "gripper", false);
     for(auto part : grippers){
-        std::vector<ID> adjoins = getLinkedObjs(dt, part, _ADJOINS, false, "");
+        std::vector<ID> adjoins = getLinkedObjs(dt, part, _ADJOINS, NON_FUNCTIONAL, "", true);
         result.insert(result.end(), adjoins.begin(), adjoins.end());
     }
     return result;
@@ -176,20 +176,22 @@ bool objHasUsageTag(gameData *dt, ID obj, std::string tag){
     return false;
 }
 
-std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType, bool limitToFuncLinks, std::string usageTag, std::vector<ID> *visitedObjs){
+std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType, enum FunctionalLinkLimitation funcLimit, std::string usageTag, std::vector<ID> *visitedObjs, bool immediateLinksOnly){
     std::vector<ID> result;
     for(auto objLink : ao(dt, obj)->linkedObjects){
         if(std::count(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == 0){
-            if((objLink.type == linkType || linkType == _ANY) && ((objLink.isFunctional && limitToFuncLinks) || !limitToFuncLinks) && objHasUsageTag(dt, objLink.subject, usageTag)){
+            if((objLink.type == linkType || linkType == _ANY) && ((objLink.isFunctional && funcLimit == FUNCTIONAL) || (!objLink.isFunctional && funcLimit == NON_FUNCTIONAL) || funcLimit == FUNC_OR_NONFUNC) && objHasUsageTag(dt, objLink.subject, usageTag)){
                 result.push_back(objLink.subject);
             }
         }
     }
-    visitedObjs->push_back(obj);
-    for(auto objLink : ao(dt, obj)->linkedObjects){
-        if(std::count(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == 0){
-            std::vector<ID> subResult = getLinkedObjs_Helper(dt, objLink.subject, linkType, limitToFuncLinks, usageTag, visitedObjs);
-            result.insert(result.end(), subResult.begin(), subResult.end());
+    if(!immediateLinksOnly){
+        visitedObjs->push_back(obj);
+        for(auto objLink : ao(dt, obj)->linkedObjects){
+            if(std::count(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == 0){
+                std::vector<ID> subResult = getLinkedObjs_Helper(dt, objLink.subject, linkType, funcLimit, usageTag, visitedObjs, immediateLinksOnly);
+                result.insert(result.end(), subResult.begin(), subResult.end());
+            }
         }
     }
     return result;
@@ -198,18 +200,12 @@ std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType,
 /*
 To "not care" about a property:
     linkType = _ANY
-    isFunctional = NULL
+    limitToFuncLinks = false
     usageTag = ""
 */
-std::vector<ID> getLinkedObjs(gameData *dt, ID obj, objLinkType linkType, bool limitToFuncLinks, std::string usageTag){
+std::vector<ID> getLinkedObjs(gameData *dt, ID obj, objLinkType linkType, enum FunctionalLinkLimitation funcLimit, std::string usageTag, bool immediateLinksOnly){
     std::vector<ID> visitedObjs;
-    std::vector<ID> result;
-    if(objHasUsageTag(dt, obj, usageTag)){
-        result.push_back(obj);
-    }
-    std::vector<ID> subResult = getLinkedObjs_Helper(dt, obj, linkType, limitToFuncLinks, usageTag, &visitedObjs);
-    result.insert(result.end(), subResult.begin(), subResult.end());
-    return result;
+    return  getLinkedObjs_Helper(dt, obj, linkType, funcLimit, usageTag, &visitedObjs, immediateLinksOnly);
 }
 
 void attackObject(gameData *dt, ID weapon, ID subject){
@@ -238,6 +234,7 @@ double getMass(gameData *dt, ID obj){
     return oPtr->height * oPtr->length * oPtr->width * dt->matGroup.at(oPtr->materialName).density;
 }
 
+//ao = 'access object'
 Object *ao(gameData *dt, ID id){
     return &dt->objGroup.at(id);
 }

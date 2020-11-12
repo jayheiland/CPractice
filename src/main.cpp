@@ -10,8 +10,8 @@
 #include "creature_group.h"
 #include "object_group.h"
 #include "material_group.h"
-
-#include "golden_plains.h"
+#include "battle_handler.h"
+#include "graphics.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
@@ -35,16 +35,20 @@ void gameSetup(){
     masterIDCounter = 1;
 }
 
-void processModels(gameData *data){
-    processCreatures(data);
+void processModels(gameData *dt){
+    processBattle(dt);
 }
 
 void gameLoop(){
     gameData data;
+
     //setup GUI
     GraphicsLayer grph("./shaders/vert.spv", "./shaders/frag.spv");
+    graphicsSetup(&grph);
+    data.grph = &grph;
 
     //test
+    
     std::string filePath = "./data/";
     loadMaterials_Json(&data.matGroup, filePath + "materials.json");
     printMaterials(&data.matGroup);
@@ -56,8 +60,13 @@ void gameLoop(){
     loadCreatureRules_Json(&data.crtRules, filePath + "creatureRules.json");
     loadFactions_Json(&data.fctGroup, filePath + "factions.json");
 
-    ID testHuman1 = createCreature(&data, 100000, "Luneth", 228986);
-    ID testHuman2 = createCreature(&data, 100000, "Ingus", 773941);
+    ID testHuman1 = createCreature(&data, 100000, true, "Luneth", 916422);
+    data.selectedPC = testHuman1;
+    Creature selectedPC = data.crtGroup.at(data.selectedPC);
+    //data.grph->createTextBox(selectedPC.name, 0, 0, 0, 0);
+
+    ID testHuman2 = createCreature(&data, 100000, false, "Ingus", 773941);
+    data.selectedNPC = testHuman2;
     printCreatures(&data.crtGroup);
     //printObjects(&data.objGroup);
     ID testEquipment = createObject(&data, 735631);
@@ -66,20 +75,23 @@ void gameLoop(){
     unlinkObjects(&data, getBody(&data.crtGroup, testHuman1), testEquipment);
     //printObjects(&data.objGroup);
 
-    //equip weapon
+    //equip weapons
     ID testWeapon = createObject(&data, 472680);
-    std::vector<ID> grippers = getLinkedObjs(&data, data.crtGroup.at(testHuman2).body, _ANY, true, "gripper");
+    std::vector<ID> grippers = getLinkedObjs(&data, data.crtGroup.at(testHuman2).body, _ANY, FUNCTIONAL, "gripper", false);
     linkObjects(&data, grippers[0], _ADJOINS, testWeapon, false, 100);
 
-    setBattleTarget(&data.crtGroup, testHuman2, testHuman1);
-    setBattleTarget(&data.crtGroup, testHuman1, testHuman2);
+    ID testWeapon2 = createObject(&data, 472680);
+    std::vector<ID> grippers2 = getLinkedObjs(&data, data.crtGroup.at(testHuman1).body, _ANY, FUNCTIONAL, "gripper", false);
+    linkObjects(&data, grippers2[0], _ADJOINS, testWeapon2, false, 100);
+
+    startBattle(&data);
 
     //printObjsWithCode(&data, 325879);
 
     //game loop
     while(!grph.windowShouldClose()){
         processModels(&data);
-        grph.draw();
+        graphicsDraw(&grph);
     }
 
     grph.cleanup();

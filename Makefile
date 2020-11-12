@@ -8,7 +8,7 @@ SRC = ./src
 all_faster:
 	make all -j 4
 
-all: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/creature.o $(BLD)/creature_group.o $(BLD)/object_group.o $(BLD)/object.o $(BLD)/material_group.o $(BLD)/material.o
+all: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/creature.o $(BLD)/creature_group.o $(BLD)/graphics.o $(BLD)/object_group.o $(BLD)/object.o $(BLD)/material_group.o $(BLD)/material.o $(BLD)/battle_handler.o
 	$(CXX) $(CXXFLAGS) -o $(EXEC) $^ -lgoldenplains
 
 $(BLD)/main.o: $(SRC)/main.cpp
@@ -26,6 +26,9 @@ $(BLD)/creature.o: $(SRC)/creature.cpp
 $(BLD)/creature_group.o: $(SRC)/creature_group.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
+$(BLD)/graphics.o: $(SRC)/graphics.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
 $(BLD)/object_group.o: $(SRC)/object_group.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
@@ -36,6 +39,9 @@ $(BLD)/material_group.o: $(SRC)/material_group.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 $(BLD)/material.o: $(SRC)/material.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
+$(BLD)/battle_handler.o: $(SRC)/battle_handler.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 .PHONY: dirSetup dirCleanup clean run debug

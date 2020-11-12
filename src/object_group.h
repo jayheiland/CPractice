@@ -12,6 +12,8 @@
 
 struct gameData;
 
+enum FunctionalLinkLimitation {FUNCTIONAL, NON_FUNCTIONAL, FUNC_OR_NONFUNC};
+
 void addObject(Object *obj);
 void loadObjects(std::string path);
 //debug methods
@@ -27,7 +29,7 @@ void linkObjects(gameData *dt, ID obj1, objLinkType linkType, ID obj2, bool isFu
 void unlinkObjects(gameData *dt, ID obj1, ID obj2);
 std::vector<ID> getPhysWeapons(gameData *dt, ID body);
 bool objHasUsageTag(gameData *dt, ID obj, std::string tag);
-std::vector<ID> getLinkedObjs(gameData *dt, ID obj, objLinkType linkType, bool limitToFuncLinks, std::string usageTag);
+std::vector<ID> getLinkedObjs(gameData *dt, ID obj, objLinkType linkType, enum FunctionalLinkLimitation funcLimit, std::string usageTag, bool immediateLinksOnly);
 void attackObject(gameData *dt, ID weapon, ID subject);
 double getMass(gameData *dt, ID subject);
 std::vector<ID> getObjsWithCode(gameData *dt, objectCode objCode);

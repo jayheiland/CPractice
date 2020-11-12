@@ -1,5 +1,4 @@
-#ifndef CREATURE_H
-#define CREATURE_H
+#pragma once
 
 #include <stdlib.h>
 #include <string.h>
@@ -14,38 +13,37 @@
 typedef uint creatureCode;
 typedef uint factionCode;
 
-typedef struct{
+struct FactionRelation{
     factionCode faction;
     int value; //-100 to 100
-} FactionRelation;
+};
 
-typedef struct{
+struct Faction{
     std::string name;
     std::vector<factionCode> enemies;
-} Faction;
+};
 
-typedef struct{
+struct Creature{
     //creature data
     std::string name;
     ID body;
     creatureCode crtCode;
     factionCode fctCode;
     //battle data
+    bool isPC;
     ID battleTarget;
     //pathing data
     worldLoc loc;
     bool currentlyPathing; //true if creature is actively following its given path
     Vec3 *path;
-} Creature;
+};
 
-typedef struct{
+struct CreatureRule{
     std::string speciesName;
     std::string bodyMapName;
-} CreatureRule;
+};
 
 
 
 void printCreature(Creature *crt);
 ID getBody(std::unordered_map<ID, Creature> *crtGroup, ID crt);
-
-#endif

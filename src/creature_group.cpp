@@ -25,21 +25,23 @@ void loadFactions_Json(std::unordered_map<factionCode, Faction> *fctGroup, std::
     }
 }
 
-Creature *ac(gameData *dt, ID crt){
-    return &dt->crtGroup.at(crt);
+//ac = 'access creature'
+Creature *ac(gameData *dt, ID id){
+    return &dt->crtGroup.at(id);
 }
 
-ID createCreature(gameData *dt, creatureCode crtCode, std::string name, factionCode fctCode){
+ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, std::string name, factionCode fctCode){
     Creature crt;
     crt.name = name;
     crt.crtCode = crtCode;
     crt.fctCode = fctCode;
+    crt.isPC = isPlayerCharacter;
     ID whateverPart =  createObjectsFromComponentMap(dt, dt->crtRules.at(crtCode).bodyMapName);
-    std::vector<ID> brainParts = getLinkedObjs(dt, whateverPart, _ANY, true, "thought center");
+    std::vector<ID> brainParts = getLinkedObjs(dt, whateverPart, _ANY, FUNCTIONAL, "thought center", false);
     crt.body = brainParts[0];
     crt.battleTarget = 0;
     ID id = genID();
-    dt->crtGroup.insert(std::make_pair(id, crt));
+    dt->crtGroup[id] = crt;
     return id;
 }
 
@@ -47,31 +49,6 @@ void printCreatures(std::unordered_map<ID, Creature> *crtGroup){
     std::cout << "-------------------------------Loaded Creatures----------------------------------" << std::endl;
     for(std::pair<ID, Creature> obj : *crtGroup){
         printCreature(&obj.second);
-    }
-}
-
-void processCreatures(gameData *dt){
-    determineBattleTargets(dt);
-    processBattles(dt);
-}
-
-void determineBattleTargets(gameData *dt){
-    // for(auto& crt : dt->crtGroup){
-    //     for(auto& other : dt->crtGroup){
-    //         auto crtEnemies = dt->fctGroup.at(crt.second.fctCode).enemies;
-    //         if(crt.first != other.first && find(crtEnemies.begin(), crtEnemies.end(), other.second.fctCode)!=crtEnemies.end()){
-    //             setBattleTarget(&dt->crtGroup, crt.first, other.first);
-    //             return;
-    //         }
-    //     }
-    // }
-}
-
-void processBattles(gameData *dt){
-    for(auto& crt : dt->crtGroup){
-        //test: get any body part to attack
-        ID targetPart = getLinkedObjs(dt, dt->crtGroup.at(crt.second.battleTarget).body, _ANY, true, "")[0];
-        attackObject(dt, getPhysWeapons(dt, crt.second.body)[0], targetPart);
     }
 }
 
