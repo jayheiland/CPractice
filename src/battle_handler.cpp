@@ -16,12 +16,27 @@ void processBattle(gameData *dt){
                 createTargetSelectorMenu(dt, dt->turnQueue.back());
             }
             ID btnId = getLeftClickedButtonID();
-            for(auto button : dt->weaponSelector.selectorButtons){
-                if(btnId == button.second){
-                    std::cout << "You selected the " << ao(dt,button.first)->name << std::endl;
-                    dt->weaponSelector.selectedObject = button.first;
+            for(auto wpn : dt->weaponSelector.selectorButtons){
+                if(btnId == wpn.second){
+                    std::cout << "You selected the " << ao(dt,wpn.first)->name << std::endl;
+                    dt->weaponSelector.selectedObject = wpn.first;
                     resetLeftClickedButtonID();
                 }
+            }
+            for(auto trg : dt->targetSelector.selectorButtons){
+                if(btnId == trg.second){
+                    std::cout << "You targeted the " << ao(dt,trg.first)->name << std::endl;
+                    dt->targetSelector.selectedObject = trg.first;
+                    resetLeftClickedButtonID();
+                }
+            }
+            if(getKeyPressed() == GLFW_KEY_SPACE){
+                if(dt->weaponSelector.selectedObject != NULL_ID){
+                    attackObject(dt, dt->weaponSelector.selectedObject, dt->targetSelector.selectedObject);
+                }
+                dt->weaponSelector.selectedObject = NULL_ID;
+                resetKeyPressed();
+                advanceTurnQueue(dt);
             }
         }
         else{
@@ -55,7 +70,7 @@ void advanceTurnQueue(gameData *dt){
 void createStackSelector(gameData *dt, GUI_StackSelector *selector, std::vector<ID> objects, double x, double y){
     int iter = 1;
     for(auto obj : objects){
-        GraphObjID btn = dt->grph->createButton(onButtonLeftClick, ao(dt, obj)->name, x, 1.0-(iter*y), 200, 200);
+        GraphObjID btn = dt->grph->createButton(onButtonLeftClick, ao(dt, obj)->name, x, 1.0-(iter*y), 80, 20);
         iter++;
         selector->selectorButtons.push_back(std::make_pair(obj, btn));
     }

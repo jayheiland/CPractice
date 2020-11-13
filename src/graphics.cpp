@@ -1,13 +1,15 @@
 #include "graphics.h"
 
-uint LeftClick_ButtonID;
+uint LeftClicked_ButtonID;
 
-int KeyPress;
+int KeyPressed;
 
 void graphicsSetup(GraphicsLayer *grph){
+    grph->setKeyEventCallback(onKeyEvent);
     grph->setCamera(glm::vec3(0.0f, 2.5f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	grph->loadFont("textures/font.png");
     resetLeftClickedButtonID();
+    resetKeyPressed();
 }
 
 void graphicsDraw(GraphicsLayer *grph){
@@ -15,21 +17,27 @@ void graphicsDraw(GraphicsLayer *grph){
 }
 
 void onButtonLeftClick(uint buttonID){
-    LeftClick_ButtonID = buttonID;
+    LeftClicked_ButtonID = buttonID;
 }
 
 GraphObjID getLeftClickedButtonID(){
-    return LeftClick_ButtonID;
+    return LeftClicked_ButtonID;
 }
 
 void resetLeftClickedButtonID(){
-    LeftClick_ButtonID = 0;
+    LeftClicked_ButtonID = 0;
 }
 
-int getKeyPress(){
-    return KeyPress;
+void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods){
+    if(action == GLFW_PRESS){
+        KeyPressed = key;
+    }
 }
 
-void resetKeyPress(){
-    KeyPress = 0;
+int getKeyPressed(){
+    return KeyPressed;
+}
+
+void resetKeyPressed(){
+    KeyPressed = 18848353;
 }

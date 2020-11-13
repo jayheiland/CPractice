@@ -13,6 +13,8 @@ GraphObjID getLeftClickedButtonID();
 
 void resetLeftClickedButtonID();
 
-int getKeyPress();
+void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-void resetKeyPress();
+int getKeyPressed();
+
+void resetKeyPressed();
