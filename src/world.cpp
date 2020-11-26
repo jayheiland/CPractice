@@ -40,7 +40,9 @@ worldNode *getNearestNeighbor(worldNode *node, Vec3 *worldSize){
     return nearest;
 }
 
-worldNode ***newWorld(Vec3 *size){
+worldNode ***newWorld(Vec3 *size, GraphicsLayer *grph){
+    TextureID nodeTxtr = grph->createTexture("./textures/grey.png");
+
     if(size->x <= 0 || size->y <= 0 || size->z <= 0){
         logError("Invalid world size");
     }
@@ -50,9 +52,9 @@ worldNode ***newWorld(Vec3 *size){
     size_t g,h;
     int i,j,k;
     worldNode ***world = (worldNode ***)malloc(x * sizeof(worldNode **));
-    for (g=0; g<y; g++){
+    for (g=0; g<x; g++){
         world[g] = (worldNode **)malloc(y * sizeof(worldNode *));
-        for (h=0; h<z; h++){
+        for (h=0; h<y; h++){
             world[g][h] = (worldNode *)malloc(z * sizeof(worldNode));
         }
     }
@@ -92,6 +94,9 @@ worldNode ***newWorld(Vec3 *size){
 
                 if(i<(size->x)-1 && j>0){ world[i][j][k].southwest = &world[i+1][j-1][k]; }
                 else{ world[i][j][k].southwest = NULL; }
+
+                //add node 3D model
+                grph->createModel("./models/cube.obj", nodeTxtr, glm::vec3(i,j,k));
             }
         }
     }
@@ -99,15 +104,17 @@ worldNode ***newWorld(Vec3 *size){
     return world;
 }
 
-void delWorld(worldNode ***world, Vec3* size){
+void deleteChunk(worldChunk *chunk){
+    worldNode ***nodes = chunk->nodes;
+    Vec3* size = &chunk->size;
     int j,k;
     for (j=0; j<size->y; j++){
         for (k=0; k<size->z; k++){
-            free(world[j][k]);
+            free(nodes[j][k]);
         }
-        free(world[j]);
+        free(nodes[j]);
     }
-    free(world);
+    free(nodes);
 }
 
 void quicksort(worldNode ***world, Vec3 *unvisNodes, int first, int last){

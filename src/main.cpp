@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <iostream>
 
-#include "world.h"
 #include "general.h"
 #include "creature_group.h"
 #include "object_group.h"
@@ -17,17 +16,17 @@
 engineData ENGINE_DATA;
 ID masterIDCounter;
 
-void testWorld(){
-    Vec3 worldSize = {10,10,10};
-    struct worldNode ***world = newWorld(&worldSize);
-    Vec3 test = {0,0,0};
-    Vec3 testDest = {worldSize.x-1,worldSize.y-1,worldSize.z-1};
-    Vec3 *path;
-    int pathLen;
-    path = worldPath(world, &worldSize, &test, &testDest, &pathLen);
-    printPath(path, pathLen);
-    free(path);
-    delWorld(world, &worldSize);
+void createWorld(gameData *dt){
+    dt->loadedChunk.size = {10,10,1};
+    dt->loadedChunk.nodes = newWorld(&dt->loadedChunk.size, dt->grph);
+    // Vec3 test = {0,0,0};
+    // Vec3 testDest = {worldSize.x-1,worldSize.y-1,worldSize.z-1};
+    // Vec3 *path;
+    // int pathLen;
+    // path = worldPath(world, &worldSize, &test, &testDest, &pathLen);
+    // printPath(path, pathLen);
+    // free(path);
+    
 }
 
 void gameSetup(){
@@ -47,7 +46,7 @@ void gameLoop(){
     graphicsSetup(&grph);
     data.grph = &grph;
 
-    //test
+    //test creature interaction
     
     std::string filePath = "./data/";
     loadMaterials_Json(&data.matGroup, filePath + "materials.json");
@@ -86,13 +85,16 @@ void gameLoop(){
 
     startBattle(&data);
 
-    //printObjsWithCode(&data, 325879);
-
+    //test world loading
+    createWorld(&data);
+    
     //game loop
     while(!grph.windowShouldClose()){
         processModels(&data);
         graphicsDraw(&grph);
     }
+
+    deleteChunk(&data.loadedChunk);
 
     grph.cleanup();
 }

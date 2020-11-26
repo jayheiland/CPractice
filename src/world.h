@@ -5,6 +5,7 @@
 #include <string.h>
 #include <limits.h>
 
+#include "golden_plains.h"
 #include "general.h"
 
 struct Vec3{
@@ -22,6 +23,7 @@ struct worldLoc{
 struct worldNode{
     Vec3 loc;
     int nodeType;
+    GraphObjID model;
     int visited_Pathing;
     uint distance_Pathing;
     struct worldNode* east;
@@ -39,6 +41,7 @@ struct worldNode{
 //a 3D matrix of worldNodes
 struct worldChunk{
     Vec3 chunkLoc;
+    Vec3 size;
     worldNode ***nodes;
     struct worldChunk* east;
     struct worldChunk* west;
@@ -50,6 +53,6 @@ struct worldChunk{
 
 int equal(Vec3 *vec1, Vec3 *vec2);
 void printPath(Vec3 *path, int length);
-worldNode ***newWorld(Vec3 *size);
-void delWorld(worldNode ***world, Vec3* size);
+worldNode ***newWorld(Vec3 *size, GraphicsLayer *grph);
+void deleteChunk(worldChunk *chunk);
 Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int *pathLen);

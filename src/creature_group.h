@@ -3,11 +3,10 @@
 #include <unordered_map>
 #include <fstream>
 
+#include "game_data.h"
 #include "general.h"
-#include "creature.h"
 #include "object_group.h"
 #include "json_parser.hpp"
-#include "game_data.h"
 
 Creature *ac(gameData *dt, ID crt);
 

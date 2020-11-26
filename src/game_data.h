@@ -6,7 +6,6 @@
 #include <queue>
 
 #include "golden_plains.h"
-
 #include "general.h"
 #include "object.h"
 #include "creature.h"
@@ -33,6 +32,8 @@ struct gameData{
     std::unordered_map<creatureCode, CreatureRule> crtRules;
     std::unordered_map<factionCode, Faction> fctGroup;
     std::unordered_map<std::string, Material> matGroup;
+
+    worldChunk loadedChunk;
 
     //overhead / management
     ID selectedPC;

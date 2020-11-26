@@ -70,7 +70,7 @@ void advanceTurnQueue(gameData *dt){
 void createStackSelector(gameData *dt, GUI_StackSelector *selector, std::vector<ID> objects, double x, double y){
     int iter = 1;
     for(auto obj : objects){
-        GraphObjID btn = dt->grph->createButton(onButtonLeftClick, ao(dt, obj)->name, x, 1.0-(iter*y), 80, 20);
+        GraphObjID btn = dt->grph->createButton(onButtonLeftClick, ao(dt, obj)->name, x, 1.0-(iter*y));
         iter++;
         selector->selectorButtons.push_back(std::make_pair(obj, btn));
     }

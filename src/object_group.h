@@ -10,8 +10,6 @@
 #include "creature_group.h"
 #include "json_parser.hpp"
 
-struct gameData;
-
 enum FunctionalLinkLimitation {FUNCTIONAL, NON_FUNCTIONAL, FUNC_OR_NONFUNC};
 
 void addObject(Object *obj);
