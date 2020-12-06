@@ -40,15 +40,31 @@ worldNode *getNearestNeighbor(worldNode *node, Vec3 *worldSize){
     return nearest;
 }
 
-worldNode ***newWorld(Vec3 *size, GraphicsLayer *grph){
-    TextureID nodeTxtr = grph->createTexture("./textures/grey.png");
+worldNode ***loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLayer *grph, std::unordered_map<std::string, TextureID> *textures){
+    JsonObject *chunkJson = parseJsonFile(chunkPath);
+    JsonObject *nodeInfo = parseJsonFile(nodeInfoPath);
 
-    if(size->x <= 0 || size->y <= 0 || size->z <= 0){
+    //load all textures for this chunk
+    for(auto ndInfo : nodeInfo->getJsonArray("nodeInfo").getJsonObjectArray()){
+        if(ndInfo->getString("texture") != ""){
+            textures->insert(std::make_pair(ndInfo->getString("name"), grph->createTexture(ndInfo->getString("texture"))));
+        }
+    }
+
+    //get chunk dimensions
+    Vec3 size;
+    size.z = chunkJson->getJsonArray("nodes").getJsonArrayArray().size();
+    size.y = chunkJson->getJsonArray("nodes").getJsonArrayArray()[0]->getJsonArrayArray().size();
+    size.x = chunkJson->getJsonArray("nodes").getJsonArrayArray()[0]->getJsonArrayArray()[0]->getStringArray().size();
+
+    if(size.x <= 0 || size.y <= 0 || size.z <= 0){
         logError("Invalid world size");
     }
-    size_t x = (size_t)size->x;
-    size_t y = (size_t)size->y;
-    size_t z = (size_t)size->z;
+
+    //allocate memory for chunk
+    size_t x = (size_t)size.x;
+    size_t y = (size_t)size.y;
+    size_t z = (size_t)size.z;
     size_t g,h;
     int i,j,k;
     worldNode ***world = (worldNode ***)malloc(x * sizeof(worldNode **));
@@ -59,44 +75,47 @@ worldNode ***newWorld(Vec3 *size, GraphicsLayer *grph){
         }
     }
     
-    for (i = 0; i <  size->x; i++){
-        for (j = 0; j < size->y; j++){
-            for (k = 0; k < size->z; k++){
+    //load chunk
+    for (i = 0; i <  size.x; i++){
+        for (j = 0; j < size.y; j++){
+            for (k = 0; k < size.z; k++){
                 set(&world[i][j][k].loc, i,j,k);
-                world[i][j][k].nodeType = 1;
+                strcpy(world[i][j][k].nodeName, chunkJson->getJsonArray("nodes").getJsonArrayArray().at(k)->getJsonArrayArray().at(j)->getStringArray().at(i).c_str());
 
                 //set cardinal neighbor worldNode pointers
                 //note: worldNode indexes count up east to west, south to north, and down to up
                 if(i>0){ world[i][j][k].east = &world[i-1][j][k]; }
                 else{ world[i][j][k].east = NULL; }
-                if(i<(size->x)-1){ world[i][j][k].west = &world[i+1][j][k]; }
+                if(i<(size.x)-1){ world[i][j][k].west = &world[i+1][j][k]; }
                 else{ world[i][j][k].west = NULL; }
 
                 if(j>0){ world[i][j][k].south = &world[i][j-1][k]; }
                 else{ world[i][j][k].south = NULL; }
-                if(j<(size->y)-1){ world[i][j][k].north = &world[i][j+1][k]; }
+                if(j<(size.y)-1){ world[i][j][k].north = &world[i][j+1][k]; }
                 else{ world[i][j][k].north = NULL; }
 
                 if(k>0){ world[i][j][k].down = &world[i][j][k-1]; }
                 else{ world[i][j][k].down = NULL; }
-                if(k<(size->z)-1){ world[i][j][k].up = &world[i][j][k+1]; }
+                if(k<(size.z)-1){ world[i][j][k].up = &world[i][j][k+1]; }
                 else{ world[i][j][k].up = NULL; }
 
                 //diagonal neighbors
-                if(i>0 && j < (size->y)-1){ world[i][j][k].northeast= &world[i-1][j+1][k]; }
+                if(i>0 && j < (size.y)-1){ world[i][j][k].northeast= &world[i-1][j+1][k]; }
                 else{ world[i][j][k].northeast = NULL; }
                 
-                if(i<(size->x)-1 && j < (size->y)-1){ world[i][j][k].northwest = &world[i+1][j+1][k]; }
+                if(i<(size.x)-1 && j < (size.y)-1){ world[i][j][k].northwest = &world[i+1][j+1][k]; }
                 else{ world[i][j][k].northwest = NULL; }
 
                 if(i>0 && j>0){ world[i][j][k].southeast = &world[i-1][j-1][k]; }
                 else{ world[i][j][k].southeast = NULL; }
 
-                if(i<(size->x)-1 && j>0){ world[i][j][k].southwest = &world[i+1][j-1][k]; }
+                if(i<(size.x)-1 && j>0){ world[i][j][k].southwest = &world[i+1][j-1][k]; }
                 else{ world[i][j][k].southwest = NULL; }
 
                 //add node 3D model
-                grph->createModel("./models/cube.obj", nodeTxtr, glm::vec3(i,j,k));
+                if(textures->find(world[i][j][k].nodeName) != textures->end()){
+                    grph->createModel("./models/cube.obj", textures->at(world[i][j][k].nodeName), glm::vec3(i,j,k));
+                }
             }
         }
     }

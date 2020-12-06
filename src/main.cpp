@@ -18,7 +18,7 @@ ID masterIDCounter;
 
 void createWorld(gameData *dt){
     dt->loadedChunk.size = {10,10,1};
-    dt->loadedChunk.nodes = newWorld(&dt->loadedChunk.size, dt->grph);
+    dt->loadedChunk.nodes = loadChunk("./data/arena.json", "./data/nodeInfo.json", dt->grph, &dt->loadedChunk.textures);
     // Vec3 test = {0,0,0};
     // Vec3 testDest = {worldSize.x-1,worldSize.y-1,worldSize.z-1};
     // Vec3 *path;

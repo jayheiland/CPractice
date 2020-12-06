@@ -7,6 +7,7 @@
 
 #include "golden_plains.h"
 #include "general.h"
+#include "json_parser.hpp"
 
 struct Vec3{
     int x;
@@ -22,7 +23,7 @@ struct worldLoc{
 //a piece of 3D world space
 struct worldNode{
     Vec3 loc;
-    int nodeType;
+    char nodeName[5];
     GraphObjID model;
     int visited_Pathing;
     uint distance_Pathing;
@@ -43,6 +44,7 @@ struct worldChunk{
     Vec3 chunkLoc;
     Vec3 size;
     worldNode ***nodes;
+    std::unordered_map<std::string, TextureID> textures;
     struct worldChunk* east;
     struct worldChunk* west;
     struct worldChunk* north;
@@ -53,6 +55,6 @@ struct worldChunk{
 
 int equal(Vec3 *vec1, Vec3 *vec2);
 void printPath(Vec3 *path, int length);
-worldNode ***newWorld(Vec3 *size, GraphicsLayer *grph);
+worldNode ***loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLayer *grph, std::unordered_map<std::string, TextureID> *textures);
 void deleteChunk(worldChunk *chunk);
 Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int *pathLen);
