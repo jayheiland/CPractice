@@ -33,7 +33,11 @@ struct gameData{
     std::unordered_map<factionCode, Faction> fctGroup;
     std::unordered_map<std::string, Material> matGroup;
 
-    worldChunk loadedChunk;
+    //world chunks
+    WorldChunk loadedChunk;
+
+    //creature textures
+    std::unordered_map<std::string, TextureID> crtTextures;
 
     //overhead / management
     ID selectedPC;

@@ -8,7 +8,7 @@ SRC = ./src
 all_faster:
 	make all -j 4
 
-all: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/creature.o $(BLD)/creature_group.o $(BLD)/graphics.o $(BLD)/object_group.o $(BLD)/object.o $(BLD)/material_group.o $(BLD)/material.o $(BLD)/battle_handler.o
+all: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/creature.o $(BLD)/creaturem.o $(BLD)/graphics.o $(BLD)/objectm.o $(BLD)/object.o $(BLD)/material_group.o $(BLD)/material.o $(BLD)/battle.o
 	$(CXX) $(CXXFLAGS) -o $(EXEC) $^ -lgoldenplains
 
 $(BLD)/main.o: $(SRC)/main.cpp
@@ -23,13 +23,13 @@ $(BLD)/general.o: $(SRC)/general.cpp
 $(BLD)/creature.o: $(SRC)/creature.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/creature_group.o: $(SRC)/creature_group.cpp
+$(BLD)/creaturem.o: $(SRC)/creaturem.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 $(BLD)/graphics.o: $(SRC)/graphics.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/object_group.o: $(SRC)/object_group.cpp
+$(BLD)/objectm.o: $(SRC)/objectm.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 $(BLD)/object.o: $(SRC)/object.cpp
@@ -41,7 +41,7 @@ $(BLD)/material_group.o: $(SRC)/material_group.cpp
 $(BLD)/material.o: $(SRC)/material.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-$(BLD)/battle_handler.o: $(SRC)/battle_handler.cpp
+$(BLD)/battle.o: $(SRC)/battle.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 .PHONY: dirSetup dirCleanup clean run debug
@@ -64,6 +64,10 @@ rebuild:
 
 run:
 	./bin/game.app
+
+memcheck:
+	valgrind --leak-check=full --verbose ./bin/game.app
+	echo "valgrind shows small, one-time memory leaks (about 2 kb) when running this Vulkan application, probably don't need to worry about these"
 
 debug:
 	lldb ./bin/game.app

@@ -7,7 +7,7 @@
 #include "object.h"
 #include "general.h"
 #include "material_group.h"
-#include "creature_group.h"
+#include "creaturem.h"
 #include "json_parser.hpp"
 
 enum FunctionalLinkLimitation {FUNCTIONAL, NON_FUNCTIONAL, FUNC_OR_NONFUNC};

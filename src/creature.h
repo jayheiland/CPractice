@@ -41,6 +41,7 @@ struct Creature{
 struct CreatureRule{
     std::string speciesName;
     std::string bodyMapName;
+    std::string textureName;
 };
 
 

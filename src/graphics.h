@@ -1,6 +1,6 @@
 #pragma once
 
-#include "creature_group.h"
+#include "creaturem.h"
 #include "golden_plains.h"
 
 void graphicsSetup(GraphicsLayer *grph);

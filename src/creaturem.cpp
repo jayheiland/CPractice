@@ -1,12 +1,16 @@
-#include "creature_group.h"
+#include "creaturem.h"
 
-void loadCreatureRules_Json(std::unordered_map<creatureCode, CreatureRule> *crtRules, std::string path){
+void loadCreatureRules_Json(gameData *dt, std::string path){
     CreatureRule crtRule;
     JsonObject *rulesFromFile = parseJsonFile(path);
     for(auto rule : rulesFromFile->getJsonArray("creatureRules").getJsonObjectArray()){
         crtRule.speciesName = rule->getString("speciesName");
         crtRule.bodyMapName = rule->getString("bodyMapName");
-        crtRules->insert(std::make_pair((creatureCode)rule->getDouble("creatureCode"), crtRule));
+        crtRule.textureName = rule->getString("textureName");
+        dt->crtRules.insert(std::make_pair((creatureCode)rule->getDouble("creatureCode"), crtRule));
+    }
+    for(auto txtr : rulesFromFile->getJsonArray("textures").getJsonArrayArray()){
+        dt->crtTextures.insert(std::make_pair(txtr->getStringArray()[0], dt->grph->createTexture(txtr->getStringArray()[1])));
     }
 }
 
@@ -30,7 +34,7 @@ Creature *ac(gameData *dt, ID id){
     return &dt->crtGroup.at(id);
 }
 
-ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, std::string name, factionCode fctCode){
+ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, std::string name, factionCode fctCode, Vec3 pos){
     Creature crt;
     crt.name = name;
     crt.crtCode = crtCode;
@@ -40,6 +44,9 @@ ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, st
     std::vector<ID> brainParts = getLinkedObjs(dt, whateverPart, _ANY, FUNCTIONAL, "thought center", false);
     crt.body = brainParts[0];
     crt.battleTarget = 0;
+    crt.loc.chunk = dt->loadedChunk.chunkLoc;
+    crt.loc.loc = pos;
+    dt->grph->createModel("./models/cartwright_sprite.obj", dt->crtTextures.at(dt->crtRules.at(crtCode).textureName), glm::vec3(pos.x, pos.y, pos.z+1));
     ID id = genID();
     dt->crtGroup[id] = crt;
     return id;

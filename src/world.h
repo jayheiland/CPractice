@@ -40,21 +40,21 @@ struct worldNode{
 };
 
 //a 3D matrix of worldNodes
-struct worldChunk{
+struct WorldChunk{
     Vec3 chunkLoc;
     Vec3 size;
     worldNode ***nodes;
     std::unordered_map<std::string, TextureID> textures;
-    struct worldChunk* east;
-    struct worldChunk* west;
-    struct worldChunk* north;
-    struct worldChunk* south;
-    struct worldChunk* up;
-    struct worldChunk* down;
+    struct WorldChunk* east;
+    struct WorldChunk* west;
+    struct WorldChunk* north;
+    struct WorldChunk* south;
+    struct WorldChunk* up;
+    struct WorldChunk* down;
 };
 
 int equal(Vec3 *vec1, Vec3 *vec2);
 void printPath(Vec3 *path, int length);
-worldNode ***loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLayer *grph, std::unordered_map<std::string, TextureID> *textures);
-void deleteChunk(worldChunk *chunk);
+WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLayer *grph, std::unordered_map<std::string, TextureID> *textures);
+void deleteChunk(WorldChunk *chunk);
 Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int *pathLen);

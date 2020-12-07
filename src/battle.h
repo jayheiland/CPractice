@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game_data.h"
-#include "creature_group.h"
+#include "creaturem.h"
 #include "graphics.h"
 
 void startBattle(gameData *dt);

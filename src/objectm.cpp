@@ -1,4 +1,4 @@
-#include "object_group.h"
+#include "objectm.h"
 
 void loadObjectRules_Json(std::unordered_map<objectCode, ObjectRule> *objRules, std::string objRulesPath){
     JsonObject *rulesFromFile = parseJsonFile(objRulesPath);

@@ -1,4 +1,4 @@
-#include "battle_handler.h"
+#include "battle.h"
 
 
 void startBattle(gameData *dt){
