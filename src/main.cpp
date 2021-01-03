@@ -17,7 +17,7 @@ engineData ENGINE_DATA;
 ID masterIDCounter;
 
 void createWorld(gameData *dt){
-    dt->loadedChunk = loadChunk("./data/arena.json", "./data/nodeInfo.json", dt->grph, &dt->loadedChunk.textures);
+    dt->loadedChunk = loadChunk("./data/arena.json", "./data/nodeInfo.json", dt->grph, &dt->loadedChunk.textures, &dt->boundingBoxToLocation);
     // Vec3 test = {0,0,0};
     // Vec3 testDest = {worldSize.x-1,worldSize.y-1,worldSize.z-1};
     // Vec3 *path;

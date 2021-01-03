@@ -46,9 +46,10 @@ ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, st
     crt.battleTarget = 0;
     crt.loc.chunk = dt->loadedChunk.chunkLoc;
     crt.loc.loc = pos;
-    dt->grph->createModel("./models/cartwright_sprite.obj", dt->crtTextures.at(dt->crtRules.at(crtCode).textureName), glm::vec3(pos.x, pos.y, pos.z+1));
+    dt->grph->createModel("./models/cartwright_sprite.obj", dt->crtTextures.at(dt->crtRules.at(crtCode).textureName), glm::vec3(pos.x, pos.y, pos.z));
     ID id = genID();
     dt->crtGroup[id] = crt;
+    dt->boundingBoxToCreature.insert(std::make_pair(dt->grph->createBoundingBox(glm::vec3(pos.x-0.5, pos.y-0.5, pos.z-0.5), glm::vec3(pos.x+0.5, pos.y+0.5, pos.z+1.5)), id));
     return id;
 }
 

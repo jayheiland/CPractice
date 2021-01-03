@@ -35,15 +35,17 @@ struct gameData{
 
     //world chunks
     WorldChunk loadedChunk;
+    std::unordered_map<GraphObjID, worldLoc> boundingBoxToLocation;
 
     //creature textures
     std::unordered_map<std::string, TextureID> crtTextures;
 
-    //overhead / management
+    //overhead / management / battle
     ID selectedPC;
     ID selectedNPC;
     bool inBattle;
     std::queue<ID> turnQueue;
+    std::unordered_map<GraphObjID, ID> boundingBoxToCreature;
 
     //graphics data
     GraphicsLayer *grph;

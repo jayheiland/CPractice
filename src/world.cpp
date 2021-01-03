@@ -40,7 +40,7 @@ worldNode *getNearestNeighbor(worldNode *node, Vec3 *worldSize){
     return nearest;
 }
 
-WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLayer *grph, std::unordered_map<std::string, TextureID> *textures){
+WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLayer *grph, std::unordered_map<std::string, TextureID> *textures, std::unordered_map<GraphObjID, worldLoc> *boundingBoxToLocation){
     JsonObject *chunkJson = parseJsonFile(chunkPath);
     JsonObject *nodeInfo = parseJsonFile(nodeInfoPath);
 
@@ -115,7 +115,12 @@ WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLa
 
                 //add node 3D model
                 if(textures->find(nodes[i][j][k].nodeName) != textures->end()){
-                    grph->createModel("./models/cube.obj", textures->at(nodes[i][j][k].nodeName), glm::vec3(i,j,k));
+                    nodes[i][j][k].model = grph->createModel("./models/cube.obj", textures->at(nodes[i][j][k].nodeName), glm::vec3(i,j,k));
+                    worldLoc bBoxLoc;
+                    bBoxLoc.loc.x = i;
+                    bBoxLoc.loc.y = j;
+                    bBoxLoc.loc.z = k;
+                    boundingBoxToLocation->insert(std::make_pair(grph->createBoundingBox(glm::vec3((float)i-0.5f,(float)j-0.5f,(float)k-0.5f), glm::vec3((float)i+0.5f,(float)j+0.5f,(float)k+0.5f)), bBoxLoc));
                 }
             }
         }
@@ -297,4 +302,8 @@ Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int
     free(tempPath);
     *pathLen = idx;
     return path;
+}
+
+worldNode *getNode(WorldChunk *chunk, Vec3 loc){
+    return &chunk->nodes[loc.x][loc.y][loc.z];
 }

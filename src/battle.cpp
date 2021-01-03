@@ -8,13 +8,33 @@ void startBattle(gameData *dt){
 
 void processBattle(gameData *dt){
     if(dt->inBattle){
+        //PC turn
         if(ac(dt, dt->turnQueue.front())->isPC){
+            //create menus
             if(dt->weaponSelector.selectorButtons.size() == 0){
                 createWeaponSelectorMenu(dt, dt->turnQueue.front());
             }
-            if(dt->targetSelector.selectorButtons.size() == 0){
-                createTargetSelectorMenu(dt, dt->turnQueue.back());
+            //handle world clicks
+            GraphObjID bBoxId = dt->grph->getLeftClickedBoundingBox();
+            if(bBoxId != 0){
+                Vec3 clickedLoc;
+                if(dt->boundingBoxToCreature.find(bBoxId) != dt->boundingBoxToCreature.end()){
+                    ID selecCrt = dt->boundingBoxToCreature.at(bBoxId);
+                    if(dt->crtGroup.at(selecCrt).isPC){
+                        dt->selectedPC = selecCrt;
+                    }
+                    else{
+                        dt->selectedNPC = selecCrt;
+                    }
+                    createTargetSelectorMenu(dt, selecCrt);
+                    std::cout << "got creature: " << selecCrt << std::endl;
+                }
+                else{
+                    clickedLoc = dt->boundingBoxToLocation.at(bBoxId).loc;
+                }
+                //std::cout << "Clicked the node at: " << clickedLoc.x << "," << clickedLoc.y << "," << clickedLoc.z << " which is type: " << getNode(&dt->loadedChunk, clickedLoc) << std::endl;
             }
+            //handle button clicks
             ID btnId = getLeftClickedButtonID();
             for(auto wpn : dt->weaponSelector.selectorButtons){
                 if(btnId == wpn.second){
@@ -39,6 +59,7 @@ void processBattle(gameData *dt){
                 advanceTurnQueue(dt);
             }
         }
+        //NPC turn
         else{
             //basic target-picking NPC behavior
             for(auto crt : dt->crtGroup){
@@ -68,6 +89,8 @@ void advanceTurnQueue(gameData *dt){
 }
 
 void createStackSelector(gameData *dt, GUI_StackSelector *selector, std::vector<ID> objects, double x, double y){
+    selector->selectorButtons.clear();
+    selector->selectedObject = NULL_ID;
     int iter = 1;
     for(auto obj : objects){
         GraphObjID btn = dt->grph->createButton(onButtonLeftClick, ao(dt, obj)->name, x, 1.0-(iter*y));
@@ -84,6 +107,7 @@ void createWeaponSelectorMenu(gameData *dt, ID playerChar){
 
 void createTargetSelectorMenu(gameData *dt, ID character){
     std::vector<ID> targets = getLinkedObjs(dt, ac(dt,character)->body, _ANY, FUNCTIONAL, "", false);
+    targets.push_back(ac(dt,character)->body);
     std::pair<uint, uint> dimen = dt->grph->getScreenDimensions();
     createStackSelector(dt, &dt->targetSelector, targets, 1.0-(300.0/dimen.first), 50.0/dimen.second);
 }
