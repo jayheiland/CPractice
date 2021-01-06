@@ -8,7 +8,7 @@ SRC = ./src
 all_faster:
 	make all -j 4
 
-all: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/creature.o $(BLD)/creaturem.o $(BLD)/graphics.o $(BLD)/objectm.o $(BLD)/object.o $(BLD)/material_group.o $(BLD)/material.o $(BLD)/battle.o
+all: $(BLD)/main.o $(BLD)/world.o $(BLD)/general.o $(BLD)/creature.o $(BLD)/creaturem.o $(BLD)/graphics.o $(BLD)/objectm.o $(BLD)/object.o $(BLD)/material_group.o $(BLD)/material.o $(BLD)/battle.o $(BLD)/worldm.o
 	$(CXX) $(CXXFLAGS) -o $(EXEC) $^ -lgoldenplains
 
 $(BLD)/main.o: $(SRC)/main.cpp
@@ -42,6 +42,9 @@ $(BLD)/material.o: $(SRC)/material.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 $(BLD)/battle.o: $(SRC)/battle.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
+$(BLD)/worldm.o: $(SRC)/worldm.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 .PHONY: dirSetup dirCleanup clean run debug

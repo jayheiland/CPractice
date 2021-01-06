@@ -1,7 +1,6 @@
 #pragma once
 
-#include "creaturem.h"
-#include "golden_plains.h"
+#include "game_data.h"
 
 void graphicsSetup(GraphicsLayer *grph);
 

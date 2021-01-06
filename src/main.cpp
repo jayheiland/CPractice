@@ -5,19 +5,19 @@
 #include <unordered_map>
 #include <iostream>
 
-#include "general.h"
-#include "creaturem.h"
-#include "objectm.h"
 #include "material_group.h"
-#include "battle.h"
+#include "objectm.h"
+#include "creaturem.h"
+#include "worldm.h"
 #include "graphics.h"
+#include "battle.h"
 
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
 ID masterIDCounter;
 
 void createWorld(gameData *dt){
-    dt->loadedChunk = loadChunk("./data/arena.json", "./data/nodeInfo.json", dt->grph, &dt->loadedChunk.textures, &dt->boundingBoxToLocation);
+    dt->loadedChunk = loadChunk("./data/arena.json", "./data/nodeInfo.json", dt->grph, &dt->nodeInfoMap, &dt->boundingBoxToLocation);
     // Vec3 test = {0,0,0};
     // Vec3 testDest = {worldSize.x-1,worldSize.y-1,worldSize.z-1};
     // Vec3 *path;

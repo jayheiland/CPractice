@@ -5,7 +5,6 @@
 #include <iostream>
 
 #include "general.h"
-#include "material.h"
 
 typedef uint objectCode;
 

@@ -3,8 +3,11 @@
 #include <vector>
 #include <string>
 
+enum MaterialPhase{SOLID, LIQUID, GAS};
+
 struct Material{
     std::string name;
+    MaterialPhase phase;
     double density; //grams per cubic centimeter
     int yieldPoint; //pressure at which this material deforms; higher is better
     int fracturePoint; //pressure at which this material fractures; higher is better

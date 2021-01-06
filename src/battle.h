@@ -1,8 +1,9 @@
 #pragma once
 
 #include "game_data.h"
-#include "creaturem.h"
 #include "graphics.h"
+#include "objectm.h"
+#include "creaturem.h"
 
 void startBattle(gameData *dt);
 

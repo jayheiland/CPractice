@@ -7,6 +7,10 @@ void loadMaterials_Json(std::unordered_map<std::string, Material> *matGroup, std
         newMat.name = mat->getString("name");
         newMat.density = mat->getDouble("density");
         newMat.tags = mat->getJsonArray("materialTags").getStringArray();
+        std::string phase = mat->getString("phase");
+        if(phase=="solid") newMat.phase = SOLID;
+        else if(phase=="liquid") newMat.phase = LIQUID;
+        else if(phase=="gas") newMat.phase = GAS;
         matGroup->insert(std::make_pair(newMat.name, newMat));
     }
 }

@@ -7,9 +7,7 @@
 #include <sstream>
 #include <vector>
 
-#include "material.h"
-#include "general.h"
-#include "json_parser.hpp"
+#include "game_data.h"
 
 void loadMaterials_Json(std::unordered_map<std::string, Material> *matGroup, std::string path);
 std::string getMaterialWithTag(std::unordered_map<std::string, Material> *matGroup, std::string desiredTag);

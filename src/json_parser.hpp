@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iostream>
 
+#include "general.h"
+
 //JSON supports string names and string, double, boolean, JSON object, or JSON array values
 
 class JsonObject;

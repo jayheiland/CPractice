@@ -5,10 +5,10 @@
 #include <dirent.h>
 #include <unordered_map>
 #include <iostream>
+#include <vector>
 
 #include "general.h"
 #include "world.h"
-#include "object.h"
 
 typedef uint creatureCode;
 typedef uint factionCode;

@@ -4,9 +4,7 @@
 #include <fstream>
 
 #include "game_data.h"
-#include "general.h"
 #include "objectm.h"
-#include "json_parser.hpp"
 
 Creature *ac(gameData *dt, ID crt);
 

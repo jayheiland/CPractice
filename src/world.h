@@ -6,8 +6,6 @@
 #include <limits.h>
 
 #include "golden_plains.h"
-#include "general.h"
-#include "json_parser.hpp"
 
 struct Vec3{
     int x;
@@ -43,12 +41,16 @@ struct worldNode{
     struct worldNode* southwest;
 };
 
+struct NodeInfo{
+    std::string material;
+    TextureID texture;
+};
+
 //a 3D matrix of worldNodes
 struct WorldChunk{
     Vec3 chunkLoc;
     Vec3 size;
     worldNode ***nodes;
-    std::unordered_map<std::string, TextureID> textures;
     struct WorldChunk* east;
     struct WorldChunk* west;
     struct WorldChunk* north;
@@ -56,10 +58,3 @@ struct WorldChunk{
     struct WorldChunk* up;
     struct WorldChunk* down;
 };
-
-int equal(Vec3 *vec1, Vec3 *vec2);
-void printPath(Vec3 *path, int length);
-WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLayer *grph, std::unordered_map<std::string, TextureID> *textures, std::unordered_map<GraphObjID, worldLoc> *boundingBoxToLocation);
-void deleteChunk(WorldChunk *chunk);
-Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int *pathLen);
-worldNode *getNode(WorldChunk *chunk, Vec3 loc);

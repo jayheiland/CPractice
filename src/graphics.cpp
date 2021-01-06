@@ -6,7 +6,7 @@ int KeyPressed;
 
 void graphicsSetup(GraphicsLayer *grph){
     grph->setKeyEventCallback(onKeyEvent);
-    grph->setCamera(glm::vec3(20.0f, 20.0f, 16.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    grph->setCamera(glm::vec3(15.0f, 15.0f, 9.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	grph->loadFont("textures/font.png");
     resetLeftClickedButtonID();
     resetKeyPressed();

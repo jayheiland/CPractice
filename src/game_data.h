@@ -5,8 +5,8 @@
 #include <fstream>
 #include <queue>
 
-#include "golden_plains.h"
-#include "general.h"
+#include "json_parser.hpp"
+#include "material.h"
 #include "object.h"
 #include "creature.h"
 
@@ -36,6 +36,7 @@ struct gameData{
     //world chunks
     WorldChunk loadedChunk;
     std::unordered_map<GraphObjID, worldLoc> boundingBoxToLocation;
+    std::unordered_map<std::string, NodeInfo> nodeInfoMap;
 
     //creature textures
     std::unordered_map<std::string, TextureID> crtTextures;
@@ -43,6 +44,7 @@ struct gameData{
     //overhead / management / battle
     ID selectedPC;
     ID selectedNPC;
+    worldLoc selectedLoc;
     bool inBattle;
     std::queue<ID> turnQueue;
     std::unordered_map<GraphObjID, ID> boundingBoxToCreature;
