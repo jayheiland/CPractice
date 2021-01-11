@@ -33,9 +33,11 @@ struct Creature{
     bool isPC;
     ID battleTarget;
     //pathing data
-    worldLoc loc;
+    WorldLoc loc;
     bool currentlyPathing; //true if creature is actively following its given path
     Vec3 *path;
+    //graphics data
+    GraphObjID model;
 };
 
 struct CreatureRule{
@@ -47,4 +49,3 @@ struct CreatureRule{
 
 
 void printCreature(Creature *crt);
-ID getBody(std::unordered_map<ID, Creature> *crtGroup, ID crt);

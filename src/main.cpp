@@ -17,12 +17,13 @@ engineData ENGINE_DATA;
 ID masterIDCounter;
 
 void createWorld(gameData *dt){
-    dt->loadedChunk = loadChunk("./data/arena.json", "./data/nodeInfo.json", dt->grph, &dt->nodeInfoMap, &dt->boundingBoxToLocation);
-    // Vec3 test = {0,0,0};
-    // Vec3 testDest = {worldSize.x-1,worldSize.y-1,worldSize.z-1};
+    dt->loadedChunk = loadChunk(dt, "./data/arena.json", "./data/nodeInfo.json");
+    // Vec3 test = {0,0,2};
+    // Vec3 testDest = {dt->loadedChunk.size.x-1, dt->loadedChunk.size.y-1, 2};
     // Vec3 *path;
     // int pathLen;
-    // path = worldPath(world, &worldSize, &test, &testDest, &pathLen);
+    // std::vector<std::string> mobility = {"flier"};
+    // path = worldPath(dt, &test, &testDest, &pathLen, mobility);
     // printPath(path, pathLen);
     // free(path);
 }
@@ -41,8 +42,9 @@ void gameLoop(){
 
     //setup GUI
     GraphicsLayer grph("./shaders/vert.spv", "./shaders/frag.spv");
-    graphicsSetup(&grph);
     data.grph = &grph;
+    graphicsSetup(&data);
+    
 
     //test creature interaction
     
@@ -82,23 +84,23 @@ void gameLoop(){
     printCreatures(&data.crtGroup);
     //printObjects(&data.objGroup);
     ID testEquipment = createObject(&data, 735631);
-    linkObjects(&data, getBody(&data.crtGroup, testHuman1), _ADJOINS, testEquipment, false, 100);
+    linkObjects(&data, ac(&data, testHuman1)->body, ADJOINS, testEquipment, false, 100);
     //printObjects(&data.objGroup);
-    unlinkObjects(&data, getBody(&data.crtGroup, testHuman1), testEquipment);
+    unlinkObjects(&data, ac(&data, testHuman1)->body, testEquipment);
     //printObjects(&data.objGroup);
 
     //equip weapons
     ID testWeapon = createObject(&data, 472680);
-    std::vector<ID> grippers = getLinkedObjs(&data, data.crtGroup.at(testHuman2).body, _ANY, FUNCTIONAL, "gripper", false);
-    linkObjects(&data, grippers[0], _ADJOINS, testWeapon, false, 100);
+    std::vector<ID> grippers = getLinkedObjs(&data, data.crtGroup.at(testHuman2).body, ANY, FUNCTIONAL, "gripper", false);
+    linkObjects(&data, grippers[0], ADJOINS, testWeapon, false, 100);
 
     ID testWeapon2 = createObject(&data, 472680);
-    std::vector<ID> grippers2 = getLinkedObjs(&data, data.crtGroup.at(testHuman1).body, _ANY, FUNCTIONAL, "gripper", false);
-    linkObjects(&data, grippers2[0], _ADJOINS, testWeapon2, false, 100);
+    std::vector<ID> grippers2 = getLinkedObjs(&data, data.crtGroup.at(testHuman1).body, ANY, FUNCTIONAL, "gripper", false);
+    linkObjects(&data, grippers2[0], ADJOINS, testWeapon2, false, 100);
 
     ID testWeapon3 = createObject(&data, 472680);
-    std::vector<ID> grippers3 = getLinkedObjs(&data, data.crtGroup.at(testHuman3).body, _ANY, FUNCTIONAL, "gripper", false);
-    linkObjects(&data, grippers3[0], _ADJOINS, testWeapon3, false, 100);
+    std::vector<ID> grippers3 = getLinkedObjs(&data, data.crtGroup.at(testHuman3).body, ANY, FUNCTIONAL, "gripper", false);
+    linkObjects(&data, grippers3[0], ADJOINS, testWeapon3, false, 100);
 
     startBattle(&data);
 

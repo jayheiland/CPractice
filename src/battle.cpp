@@ -15,13 +15,14 @@ void processBattle(gameData *dt){
                 createWeaponSelectorMenu(dt, dt->turnQueue.front());
             }
             //handle world clicks
-            GraphObjID bBoxId = dt->grph->getLeftClickedBoundingBox();
+            GraphObjID bBoxId = dt->grph->getClickedBoundingBox(LMB);
             if(bBoxId != 0){
-                Vec3 clickedLoc;
+                Vec3 lClickedLoc;
                 if(dt->boundingBoxToCreature.find(bBoxId) != dt->boundingBoxToCreature.end()){
                     ID selecCrt = dt->boundingBoxToCreature.at(bBoxId);
                     if(dt->crtGroup.at(selecCrt).isPC){
                         dt->selectedPC = selecCrt;
+                        std::cout << "Selected PC: " << dt->selectedPC << " at z :" << ac(dt, dt->selectedPC)->loc.loc.z << std::endl;
                     }
                     else{
                         dt->selectedNPC = selecCrt;
@@ -30,9 +31,19 @@ void processBattle(gameData *dt){
                     std::cout << "got creature: " << selecCrt << std::endl;
                 }
                 else{
-                    clickedLoc = dt->boundingBoxToLocation.at(bBoxId).loc;
+                    lClickedLoc = dt->boundingBoxToLocation.at(bBoxId).loc;
                 }
                 //std::cout << "Clicked the node at: " << clickedLoc.x << "," << clickedLoc.y << "," << clickedLoc.z << " which is type: " << getNode(&dt->loadedChunk, clickedLoc) << std::endl;
+            }
+            bBoxId = dt->grph->getClickedBoundingBox(RMB);
+            if(bBoxId != 0 && dt->boundingBoxToCreature.find(bBoxId) == dt->boundingBoxToCreature.end()){
+                Vec3 rClickedLoc = dt->boundingBoxToLocation.at(bBoxId).loc;
+                // std::cout << "Right clicked the node at: " << rClickedLoc.x << "," << rClickedLoc.y << "," << rClickedLoc.z << " which is type: " << getNode(&dt->loadedChunk, rClickedLoc)->nodeName << std::endl;
+                rClickedLoc.z++; //move to the node above the one you clicked
+                WorldLoc destination;
+                destination.loc = rClickedLoc;
+                // std::cout << "Attempting to move to node at: " << destination.loc.x << "," << destination.loc.y << "," << destination.loc.z << " which is type: " << getNode(&dt->loadedChunk, rClickedLoc)->nodeName << std::endl;
+                moveToLocation(dt, dt->selectedPC, destination);
             }
             //handle button clicks
             ID btnId = getLeftClickedButtonID();
@@ -52,14 +63,20 @@ void processBattle(gameData *dt){
                 }
             }
             resetLeftClickedButtonID();
-            if(getKeyPressed() == GLFW_KEY_SPACE){
-                if(dt->weaponSelector.selectedObject != NULL_ID){
-                    attackObject(dt, dt->weaponSelector.selectedObject, dt->targetSelector.selectedObject);
+            //key inputs
+            switch(getKeyPressed()){
+                case GLFW_KEY_SPACE:{
+                    if(dt->weaponSelector.selectedObject != NULL_ID){
+                        attackObject(dt, dt->weaponSelector.selectedObject, dt->targetSelector.selectedObject);
+                    }
+                    dt->weaponSelector.selectedObject = NULL_ID;
+                    resetKeyPressed();
+                    advanceTurnQueue(dt);
+                    break;
                 }
-                dt->weaponSelector.selectedObject = NULL_ID;
-                resetKeyPressed();
-                advanceTurnQueue(dt);
+                case GLFW_KEY_W: panCamera(dt, PANUP); break;
             }
+            resetKeyPressed();
         }
         //NPC turn
         else{
@@ -71,7 +88,7 @@ void processBattle(gameData *dt){
                 }
             }
             Creature crt = *ac(dt, dt->turnQueue.front());
-            ID targetPart = getLinkedObjs(dt, ac(dt, crt.battleTarget)->body, _ANY, FUNCTIONAL, "", false)[0];
+            ID targetPart = getLinkedObjs(dt, ac(dt, crt.battleTarget)->body, ANY, FUNCTIONAL, "", false)[0];
             attackObject(dt, getPhysWeapons(dt, crt.body)[0], targetPart);
             advanceTurnQueue(dt);
         }
@@ -111,7 +128,7 @@ void createWeaponSelectorMenu(gameData *dt, ID playerChar){
 }
 
 void createTargetSelectorMenu(gameData *dt, ID character){
-    std::vector<ID> targets = getLinkedObjs(dt, ac(dt,character)->body, _ANY, FUNCTIONAL, "", false);
+    std::vector<ID> targets = getLinkedObjs(dt, ac(dt,character)->body, ANY, FUNCTIONAL, "", false);
     targets.push_back(ac(dt,character)->body);
     std::pair<uint, uint> dimen = dt->grph->getScreenDimensions();
     createStackSelector(dt, &dt->targetSelector, targets, 1.0-(300.0/dimen.first), 50.0/dimen.second);

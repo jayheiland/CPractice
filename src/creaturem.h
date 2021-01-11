@@ -5,6 +5,7 @@
 
 #include "game_data.h"
 #include "objectm.h"
+#include "worldm.h"
 
 Creature *ac(gameData *dt, ID crt);
 
@@ -15,6 +16,8 @@ void loadCreatureRules(std::unordered_map<creatureCode, CreatureRule> *crtRules,
 ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, std::string name, factionCode fctCode, Vec3 pos);
 
 void printCreatures(std::unordered_map<ID, Creature> *crtGroup);
+
+void moveToLocation(gameData *dt, ID creature, WorldLoc loc);
 
 void loadFactions_Json(std::unordered_map<factionCode, Faction> *fctGroup, std::string path);
 

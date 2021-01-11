@@ -64,3 +64,7 @@ int roll(int numberDice, int numberSides){
     }
     return total;
 }
+
+bool contains(std::vector<std::string> strings, std::string key){
+    return std::find(strings.begin(), strings.end(), key) != strings.end();
+}

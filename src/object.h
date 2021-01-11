@@ -8,7 +8,7 @@
 
 typedef uint objectCode;
 
-enum objLinkType{_ADJOINS, _WRAPS, _WRAPPED_BY, _ANY};
+enum objLinkType{ADJOINS, WRAPS, WRAPPED_BY, ANY};
 
 struct ObjectLink{
     enum objLinkType type;

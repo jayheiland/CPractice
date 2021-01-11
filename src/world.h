@@ -17,28 +17,28 @@ struct Vec3{
     }
 };
 
-struct worldLoc{
+struct WorldLoc{
     Vec3 chunk;
     Vec3 loc;
 };
 
 //a piece of 3D world space
-struct worldNode{
+struct WorldNode{
     Vec3 loc;
     char nodeName[5];
     GraphObjID model;
     int visited_Pathing;
-    uint distance_Pathing;
-    struct worldNode* east;
-    struct worldNode* west;
-    struct worldNode* north;
-    struct worldNode* south;
-    struct worldNode* up;
-    struct worldNode* down;
-    struct worldNode* northeast;
-    struct worldNode* northwest;
-    struct worldNode* southeast;
-    struct worldNode* southwest;
+    double distance_Pathing;
+    struct WorldNode* east;
+    struct WorldNode* west;
+    struct WorldNode* north;
+    struct WorldNode* south;
+    struct WorldNode* up;
+    struct WorldNode* down;
+    struct WorldNode* northeast;
+    struct WorldNode* northwest;
+    struct WorldNode* southeast;
+    struct WorldNode* southwest;
 };
 
 struct NodeInfo{
@@ -50,7 +50,7 @@ struct NodeInfo{
 struct WorldChunk{
     Vec3 chunkLoc;
     Vec3 size;
-    worldNode ***nodes;
+    WorldNode ***nodes;
     struct WorldChunk* east;
     struct WorldChunk* west;
     struct WorldChunk* north;

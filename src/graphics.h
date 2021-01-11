@@ -2,7 +2,10 @@
 
 #include "game_data.h"
 
-void graphicsSetup(GraphicsLayer *grph);
+enum CameraPanDirection{PANUP, PANDOWN, PANLEFT, PANRIGHT};
+enum CameraOrbitDirection{ORBITLEFT, ORBITRIGHT};
+
+void graphicsSetup(gameData *dt);
 
 void graphicsDraw(GraphicsLayer *grph);
 
@@ -17,3 +20,7 @@ void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
 int getKeyPressed();
 
 void resetKeyPressed();
+
+void panCamera(gameData *dt, CameraPanDirection direction);
+
+void orbitCamera(gameData *dt, CameraOrbitDirection direction);

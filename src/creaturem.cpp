@@ -41,16 +41,40 @@ ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, st
     crt.fctCode = fctCode;
     crt.isPC = isPlayerCharacter;
     ID whateverPart =  createObjectsFromComponentMap(dt, dt->crtRules.at(crtCode).bodyMapName);
-    std::vector<ID> brainParts = getLinkedObjs(dt, whateverPart, _ANY, FUNCTIONAL, "thought center", false);
+    std::vector<ID> brainParts = getLinkedObjs(dt, whateverPart, ANY, FUNCTIONAL, "thought center", false);
     crt.body = brainParts[0];
     crt.battleTarget = 0;
     crt.loc.chunk = dt->loadedChunk.chunkLoc;
     crt.loc.loc = pos;
-    dt->grph->createModel("./models/cartwright_sprite.obj", dt->crtTextures.at(dt->crtRules.at(crtCode).textureName), glm::vec3(pos.x, pos.y, pos.z));
+    crt.model = dt->grph->createModel("./models/cartwright_sprite.obj", dt->crtTextures.at(dt->crtRules.at(crtCode).textureName), glm::vec3(pos.x, pos.y, pos.z));
     ID id = genID();
     dt->crtGroup[id] = crt;
     dt->boundingBoxToCreature.insert(std::make_pair(dt->grph->createBoundingBox(glm::vec3(pos.x-0.5, pos.y-0.5, pos.z-0.5), glm::vec3(pos.x+0.5, pos.y+0.5, pos.z+1.5)), id));
     return id;
+}
+
+std::vector<std::string> getMobilityTags(gameData *dt, ID crt){
+    std::vector<std::string> result;
+    if(getLinkedObjs(dt, ac(dt, crt)->body, ANY, FUNCTIONAL, "ambulator", false).size() > 0){
+        result.push_back("ambulator");
+    }
+    if(getLinkedObjs(dt, ac(dt, crt)->body, ANY, FUNCTIONAL, "swimmer", false).size() > 0){
+        result.push_back("swimmer");
+    }
+    if(getLinkedObjs(dt, ac(dt, crt)->body, ANY, FUNCTIONAL, "flier", false).size() > 0){
+        result.push_back("flier");
+    }
+    return result;
+}
+
+void moveToLocation(gameData *dt, ID creature, WorldLoc loc){
+    int pathLen;
+    Vec3 *path = worldPath(dt, &dt->crtGroup.at(creature).loc.loc, &loc.loc, &pathLen, getMobilityTags(dt, creature));
+    for(int idx = pathLen-1; idx >= 0; idx--){
+        Vec3 newLoc = path[idx];
+        dt->crtGroup.at(creature).loc.loc = newLoc;
+        dt->grph->setModelPosition(ac(dt, creature)->model, glm::vec3(newLoc.x, newLoc.y, newLoc.z));
+    }
 }
 
 void printCreatures(std::unordered_map<ID, Creature> *crtGroup){

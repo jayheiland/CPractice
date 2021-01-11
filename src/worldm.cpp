@@ -22,9 +22,9 @@ void printPath(Vec3 *path, int length){
     printf("\n");
 }
 
-worldNode *getNearestNeighbor(worldNode *node, Vec3 *worldSize){
-    uint smallestDist = INT_MAX;
-    worldNode *nearest = NULL;
+WorldNode *getNearestNeighbor(WorldNode *node, Vec3 *worldSize){
+    double smallestDist = DBL_MAX;
+    WorldNode *nearest = NULL;
     if(node->loc.x > 0 && node->east->distance_Pathing < smallestDist){ nearest = node->east; smallestDist = node->east->distance_Pathing; }
     if(node->loc.x < worldSize->x-1 && node->west->distance_Pathing < smallestDist){ nearest = node->west; smallestDist = node->west->distance_Pathing; }
     if(node->loc.y < worldSize->y-1 && node->north->distance_Pathing < smallestDist){ nearest = node->north; smallestDist = node->north->distance_Pathing; }
@@ -40,18 +40,24 @@ worldNode *getNearestNeighbor(worldNode *node, Vec3 *worldSize){
     return nearest;
 }
 
-WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLayer *grph, std::unordered_map<std::string, NodeInfo> *nodeInfoMap, std::unordered_map<GraphObjID, worldLoc> *boundingBoxToLocation){
+WorldChunk loadChunk(gameData *dt, std::string chunkPath, std::string nodeInfoPath){
     JsonObject *chunkJson = parseJsonFile(chunkPath);
     JsonObject *nodeInfo = parseJsonFile(nodeInfoPath);
 
     //load all textures for this chunk
     for(auto ndInfo : nodeInfo->getJsonArray("nodeInfo").getJsonObjectArray()){
+        NodeInfo newNodeInfo;
         if(ndInfo->getString("texture") != ""){
-            NodeInfo newNodeInfo;
-            newNodeInfo.texture = grph->createTexture(ndInfo->getString("texture"));
-            newNodeInfo.material = ndInfo->getString("material");
-            nodeInfoMap->insert(std::make_pair(ndInfo->getString("name"), newNodeInfo));
+            newNodeInfo.texture = dt->grph->createTexture(ndInfo->getString("texture"));
         }
+        else{
+            newNodeInfo.texture = 0;
+        }
+        newNodeInfo.material = ndInfo->getString("material");
+        dt->nodeInfoMap.insert(std::make_pair(ndInfo->getString("name"), newNodeInfo));
+    }
+    for(auto nInfo : dt->nodeInfoMap){
+        std::cout << "loaded nodeinfo: " << nInfo.second.material << std::endl;
     }
 
     //get chunk dimensions
@@ -71,11 +77,11 @@ WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLa
     size_t z = (size_t)size.z;
     size_t g,h;
     int i,j,k;
-    worldNode ***nodes = (worldNode ***)malloc(x * sizeof(worldNode **));
+    WorldNode ***nodes = (WorldNode ***)malloc(x * sizeof(WorldNode **));
     for (g=0; g<x; g++){
-        nodes[g] = (worldNode **)malloc(y * sizeof(worldNode *));
+        nodes[g] = (WorldNode **)malloc(y * sizeof(WorldNode *));
         for (h=0; h<y; h++){
-            nodes[g][h] = (worldNode *)malloc(z * sizeof(worldNode));
+            nodes[g][h] = (WorldNode *)malloc(z * sizeof(WorldNode));
         }
     }
     
@@ -117,13 +123,13 @@ WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLa
                 else{ nodes[i][j][k].southwest = NULL; }
 
                 //add node 3D model
-                if(nodeInfoMap->find(nodes[i][j][k].nodeName) != nodeInfoMap->end()){
-                    nodes[i][j][k].model = grph->createModel("./models/cube.obj", nodeInfoMap->at(nodes[i][j][k].nodeName).texture, glm::vec3(i,j,k));
-                    worldLoc bBoxLoc;
+                if(dt->nodeInfoMap.at(nodes[i][j][k].nodeName).texture != 0){
+                    nodes[i][j][k].model = dt->grph->createModel("./models/cube.obj", dt->nodeInfoMap.at(nodes[i][j][k].nodeName).texture, glm::vec3(i,j,k));
+                    WorldLoc bBoxLoc;
                     bBoxLoc.loc.x = i;
                     bBoxLoc.loc.y = j;
                     bBoxLoc.loc.z = k;
-                    boundingBoxToLocation->insert(std::make_pair(grph->createBoundingBox(glm::vec3((float)i-0.5f,(float)j-0.5f,(float)k-0.5f), glm::vec3((float)i+0.5f,(float)j+0.5f,(float)k+0.5f)), bBoxLoc));
+                    dt->boundingBoxToLocation.insert(std::make_pair(dt->grph->createBoundingBox(glm::vec3((float)i-0.5f,(float)j-0.5f,(float)k-0.5f), glm::vec3((float)i+0.5f,(float)j+0.5f,(float)k+0.5f)), bBoxLoc));
                 }
             }
         }
@@ -135,7 +141,7 @@ WorldChunk loadChunk(std::string chunkPath, std::string nodeInfoPath, GraphicsLa
 }
 
 void deleteChunk(WorldChunk *chunk){
-    worldNode ***nodes = chunk->nodes;
+    WorldNode ***nodes = chunk->nodes;
     Vec3* size = &chunk->size;
     int j,k;
     for (j=0; j<size->y; j++){
@@ -147,7 +153,7 @@ void deleteChunk(WorldChunk *chunk){
     free(nodes);
 }
 
-void quicksort(worldNode ***world, Vec3 *unvisNodes, int first, int last){
+void quicksort(WorldNode ***world, Vec3 *unvisNodes, int first, int last){
    int i, j, pivot;
    Vec3 temp;
 
@@ -181,75 +187,109 @@ void quicksort(worldNode ***world, Vec3 *unvisNodes, int first, int last){
    }
 }
 
-void markNodeNeighborsDistances(worldNode ***world, worldNode *curr, Vec3 *end, int edgeLen, Vec3 *worldSize){
-    uint calcLen = (curr->distance_Pathing) + edgeLen;
-    if(curr->loc.x > 0 && !curr->east->visited_Pathing && calcLen < curr->east->distance_Pathing){
+bool canGoTo(gameData *dt, WorldNode *node, std::vector<std::string> mobilityTags){
+    Vec3 loc; loc.x = node->loc.x; loc.y = node->loc.y; loc.z = node->loc.z;
+    // printf("enter canGoTo with node at %d,%d,%d\n", loc.x, loc.y, loc.z);
+    MaterialPhase phase;
+    if(node->loc.z > 0){
+        loc.z--;
+        std::string nName = getNode(&dt->loadedChunk, loc)->nodeName;
+        std::string nMat = dt->nodeInfoMap.at(nName).material;
+        phase = dt->matGroup.at(nMat).phase;
+        if(phase == SOLID && contains(mobilityTags, "ambulator")){
+            return true;
+            // printf("walker canGoTo return true\n");
+        }
+        loc.z++;
+    }
+    phase = dt->matGroup.at(dt->nodeInfoMap.at(getNode(&dt->loadedChunk, loc)->nodeName).material).phase;
+    switch(phase){
+        case LIQUID: if(contains(mobilityTags, "swimmer")) return true;
+        case GAS: if(contains(mobilityTags, "flier")) return true;
+        case SOLID: return false;
+    }
+    return false;
+}
+
+void markNodeNeighborsDistances(gameData *dt, WorldNode *curr, Vec3 *end, double edgeLen, std::vector<std::string> mobilityTags){
+    double calcLen = (curr->distance_Pathing) + edgeLen;
+    Vec3 loc = curr->loc;
+    Vec3 size = dt->loadedChunk.size;
+    //east
+    if(loc.x > 0 && !curr->east->visited_Pathing && calcLen < curr->east->distance_Pathing && canGoTo(dt, curr->east, mobilityTags)){
         curr->east->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had east marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+        // printf("Node at %d,%d,%d had east marked\n", loc.x, loc.y, loc.z);
     }
-    if(curr->loc.x < worldSize->x-1 && !curr->west->visited_Pathing  && calcLen < curr->west->distance_Pathing){
+    //west
+    if(loc.x < size.x-1 && !curr->west->visited_Pathing  && calcLen < curr->west->distance_Pathing && canGoTo(dt, curr->west, mobilityTags)){
         curr->west->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had west marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+        // printf("Node at %d,%d,%d had west marked\n", loc.x, loc.y, loc.z);
     }
-    if(curr->loc.y < worldSize->y-1 && !curr->north->visited_Pathing  && calcLen < curr->north->distance_Pathing){
+    //north
+    if(loc.y < size.y-1 && !curr->north->visited_Pathing  && calcLen < curr->north->distance_Pathing && canGoTo(dt, curr->north, mobilityTags)){
         curr->north->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had north marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+        // printf("Node at %d,%d,%d had north marked\n", loc.x, loc.y, loc.z);
     }
-    if(curr->loc.y > 0 && !curr->south->visited_Pathing  && calcLen < curr->south->distance_Pathing){
+    //south
+    if(loc.y > 0 && !curr->south->visited_Pathing  && calcLen < curr->south->distance_Pathing && canGoTo(dt, curr->south, mobilityTags)){
         curr->south->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had south marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+        // printf("Node at %d,%d,%d had south marked\n", loc.x, loc.y, loc.z);
     }
-    if(curr->loc.z < worldSize->z-1 && !curr->up->visited_Pathing  && calcLen < curr->up->distance_Pathing){
+    //up
+    if(loc.z < size.z-1 && !curr->up->visited_Pathing  && calcLen < curr->up->distance_Pathing && canGoTo(dt, curr->up, mobilityTags)){
         curr->up->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had up marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+        // printf("Node at %d,%d,%d had up marked\n", loc.x, loc.y, loc.z);
     }
-    if(curr->loc.z > 0 && !curr->down->visited_Pathing  && calcLen < curr->down->distance_Pathing){
+    //down
+    // std::cout << "down neighbor is: " << getNode(&dt->loadedChunk, loc)->nodeName << std::endl;
+    if(loc.z > 0 && !curr->down->visited_Pathing  && calcLen < curr->down->distance_Pathing && canGoTo(dt, curr->down, mobilityTags)){
         curr->down->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had down marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+        // printf("Node at %d,%d,%d had down marked\n", loc.x, loc.y, loc.z);
     }
 
 
     //diagonal neighbors
-    if(curr->loc.x > 0 && curr->loc.y < worldSize->y-1 && !curr->northeast->visited_Pathing  && calcLen < curr->northeast->distance_Pathing){
-        curr->northeast->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had down marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+    double diagExtra = 0.4142;
+    if(loc.x > 0 && loc.y < size.y-1 && !curr->northeast->visited_Pathing  && calcLen < curr->northeast->distance_Pathing && canGoTo(dt, curr->northeast, mobilityTags)){
+        curr->northeast->distance_Pathing = calcLen + diagExtra;
+        // printf("Node at %d,%d,%d had northeast marked\n", loc.x, loc.y, loc.z);
     }
-    if(curr->loc.x < worldSize->x-1 && curr->loc.y < worldSize->y-1 && !curr->northwest->visited_Pathing  && calcLen < curr->northwest->distance_Pathing){
-        curr->northwest->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had down marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+    if(loc.x < size.x-1 && loc.y < size.y-1 && !curr->northwest->visited_Pathing  && calcLen < curr->northwest->distance_Pathing && canGoTo(dt, curr->northwest, mobilityTags)){
+        curr->northwest->distance_Pathing = calcLen + diagExtra;
+        // printf("Node at %d,%d,%d had northwest marked\n", loc.x, loc.y, loc.z);
     }
-    if(curr->loc.x > 0 && curr->loc.y > 0 && !curr->southeast->visited_Pathing  && calcLen < curr->southeast->distance_Pathing){
-        curr->southeast->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had down marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+    if(loc.x > 0 && loc.y > 0 && !curr->southeast->visited_Pathing  && calcLen < curr->southeast->distance_Pathing && canGoTo(dt, curr->southeast, mobilityTags)){
+        curr->southeast->distance_Pathing = calcLen + diagExtra;
+        // printf("Node at %d,%d,%d had southeast marked\n", loc.x, loc.y, loc.z);
     }
-    if(curr->loc.x < worldSize->x-1 && curr->loc.y > 0 && !curr->southwest->visited_Pathing  && calcLen < curr->southwest->distance_Pathing){
-        curr->southwest->distance_Pathing = calcLen;
-        //printf("Node at %d,%d,%d had down marked\n", curr->loc.x, curr->loc.y, curr->loc.z);
+    if(loc.x < size.x-1 && loc.y > 0 && !curr->southwest->visited_Pathing  && calcLen < curr->southwest->distance_Pathing && canGoTo(dt, curr->southwest, mobilityTags)){
+        curr->southwest->distance_Pathing = calcLen + diagExtra;
+        // printf("Node at %d,%d,%d had southwest marked\n", loc.x, loc.y, loc.z);
     }
-    //printf("Newly visited node at %d,%d,%d has a current distance of: %d\n", curr->loc.x, curr->loc.y, curr->loc.z, curr->distance_Pathing);
+    //printf("Newly visited node at %d,%d,%d has a current distance of: %\n", loc.x, loc.y, loc.z, curr->distance_Pathing);
 }
 
-Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int *pathLen, std::vector<std::string> mobilityTags){
-    worldNode *curr;
-    int edgeLen = 1;
-    size_t x = worldSize->x;
-    size_t y = worldSize->y;
-    size_t z = worldSize->z;
+Vec3 *worldPath(gameData *dt, Vec3 *start, Vec3 *end, int *pathLen, std::vector<std::string> mobilityTags){
+    WorldNode *curr;
+    double edgeLen = 1.0;
+    size_t x = dt->loadedChunk.size.x;
+    size_t y = dt->loadedChunk.size.y;
+    size_t z = dt->loadedChunk.size.z;
     Vec3 *unvisNodes = (Vec3 *)malloc(x * y * z * sizeof(Vec3));
     Vec3 *path, *tempPath;
     int unvisCount = 0;
     int i,j,k, idx;
-    if(equal(start, end)){
+    if(start==end){
         path = (Vec3 *)malloc(sizeof(Vec3));
         path[0] = *start;
         *pathLen = 1;
         return path;
     }
-    for (i = 0; i <  worldSize->x; i++){
-        for (j = 0; j < worldSize->y; j++){
-            for (k = 0; k < worldSize->z; k++){
-                world[i][j][k].visited_Pathing = 0;
-                world[i][j][k].distance_Pathing = INT_MAX;
+    for (i = 0; i <  dt->loadedChunk.size.x; i++){
+        for (j = 0; j < dt->loadedChunk.size.y; j++){
+            for (k = 0; k < dt->loadedChunk.size.z; k++){
+                dt->loadedChunk.nodes[i][j][k].visited_Pathing = 0;
+                dt->loadedChunk.nodes[i][j][k].distance_Pathing = DBL_MAX;
                 set(&unvisNodes[unvisCount], i,j,k);
                 //printf("index %d: %d,%d,%d\n", unvisCount, unvisNodes[unvisCount].x, unvisNodes[unvisCount].y, unvisNodes[unvisCount].z);
                 unvisCount++;
@@ -257,33 +297,34 @@ Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int
         }
     }
 
-    world[start->x][start->y][start->z].distance_Pathing = 0;
+    dt->loadedChunk.nodes[start->x][start->y][start->z].distance_Pathing = 0;
 
-    curr = &world[start->x][start->y][start->z];
+    curr = &dt->loadedChunk.nodes[start->x][start->y][start->z];
 
-    while(!world[end->x][end->y][end->z].visited_Pathing){
+    while(!dt->loadedChunk.nodes[end->x][end->y][end->z].visited_Pathing){
         //debug
-        /*printf("Before sorting unvisNodes array (of unvisCount = %d):\n", unvisCount);
-        for(idx = 0; idx < unvisCount; idx++){
-            printf("%d: %d,%d,%d  dist: %d\n", idx, unvisNodes[idx].x, unvisNodes[idx].y, unvisNodes[idx].z, world[unvisNodes[idx].x][unvisNodes[idx].y][unvisNodes[idx].z].distance_Pathing);
-        }
-        //reg
-        quicksort(world, unvisNodes, 0, unvisCount-1);
+        // printf("Before sorting unvisNodes array (of unvisCount = %d):\n", unvisCount);
+        // for(idx = 0; idx < unvisCount; idx++){
+        //     printf("%d: %d,%d,%d  dist: %d\n", idx, unvisNodes[idx].x, unvisNodes[idx].y, unvisNodes[idx].z, world[unvisNodes[idx].x][unvisNodes[idx].y][unvisNodes[idx].z].distance_Pathing);
+        // }
+        //uncomment this!
+        quicksort(dt->loadedChunk.nodes, unvisNodes, 0, unvisCount-1);
         //debug
-        printf("After sorting unvisNodes array (of unvisCount = %d):\n", unvisCount);
-        for(idx = 0; idx < unvisCount; idx++){
-            printf("%d: %d,%d,%d  dist: %d\n", idx, unvisNodes[idx].x, unvisNodes[idx].y, unvisNodes[idx].z, world[unvisNodes[idx].x][unvisNodes[idx].y][unvisNodes[idx].z].distance_Pathing);
-        }*/
-        //reg
-        if(world[unvisNodes[0].x][unvisNodes[0].y][unvisNodes[0].z].distance_Pathing == INT_MAX){
+        // printf("After sorting unvisNodes array (of unvisCount = %d):\n", unvisCount);
+        // for(idx = 0; idx < unvisCount; idx++){
+        //     printf("%d: %d,%d,%d  dist: %d\n", idx, unvisNodes[idx].x, unvisNodes[idx].y, unvisNodes[idx].z, world[unvisNodes[idx].x][unvisNodes[idx].y][unvisNodes[idx].z].distance_Pathing);
+        // }
+        //uncomment this!
+        if(dt->loadedChunk.nodes[unvisNodes[0].x][unvisNodes[0].y][unvisNodes[0].z].distance_Pathing == DBL_MAX){
             printf("Broke from distance painting loop. Likely no possible path.\n");
             path = (Vec3 *)malloc(sizeof(Vec3));
             path[0] = *start;
             *pathLen = 1;
             return path;
         }
-        curr = &world[unvisNodes[0].x][unvisNodes[0].y][unvisNodes[0].z];
-        markNodeNeighborsDistances(world, curr, end, edgeLen, worldSize);
+        curr = &dt->loadedChunk.nodes[unvisNodes[0].x][unvisNodes[0].y][unvisNodes[0].z];
+        // std::cout << "about to mark dists for node at: " << curr->loc.x << "," << curr->loc.y << "," << curr->loc.z << std::endl;
+        markNodeNeighborsDistances(dt, curr, end, edgeLen, mobilityTags);
         curr->visited_Pathing = 1;
         for(idx = 1; idx < unvisCount; idx++){
             unvisNodes[idx-1] = unvisNodes[idx];
@@ -292,12 +333,12 @@ Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int
     }
     free(unvisNodes);
 
-    tempPath = (Vec3 *)malloc((size_t)4 * (size_t)worldSize->x * sizeof(Vec3));
-    curr = &world[end->x][end->y][end->z];
+    tempPath = (Vec3 *)malloc(1000 * sizeof(Vec3)); //allocate memory for a 1000 node long path
+    curr = &dt->loadedChunk.nodes[end->x][end->y][end->z];
     idx = 0;
     while(!equal(&curr->loc, start)){
         tempPath[idx] = curr->loc;
-        curr = getNearestNeighbor(curr, worldSize);
+        curr = getNearestNeighbor(curr, &dt->loadedChunk.size);
         idx++;
     }
     path = (Vec3 *)malloc((size_t)idx * sizeof(Vec3));
@@ -307,6 +348,6 @@ Vec3 *worldPath(worldNode ***world, Vec3 *worldSize, Vec3 *start, Vec3 *end, int
     return path;
 }
 
-worldNode *getNode(WorldChunk *chunk, Vec3 loc){
+WorldNode *getNode(WorldChunk *chunk, Vec3 loc){
     return &chunk->nodes[loc.x][loc.y][loc.z];
 }

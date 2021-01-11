@@ -18,3 +18,4 @@ std::string stripChar(std::string str, char nix);
 std::string stripCharAround(std::string str, char bookend);
 bool strContains(std::string str, int num, char ch);
 int roll(int numberDice, int numberSides);
+bool contains(std::vector<std::string> strings, std::string key);

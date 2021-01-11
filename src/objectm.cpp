@@ -39,13 +39,13 @@ void loadComponentMaps(std::unordered_map<std::string, ComponentMap> *componentM
             for(auto mapLink : node->getJsonArray("objectLinks").getJsonObjectArray()){
                 CmpMapLink newObjLink;
                 if(mapLink->getString("objLinkType") == "adjoins"){
-                    newObjLink.type = _ADJOINS;
+                    newObjLink.type = ADJOINS;
                 }
                 else if(mapLink->getString("objLinkType") == "wraps"){
-                    newObjLink.type = _WRAPS;
+                    newObjLink.type = WRAPS;
                 }
                 else if(mapLink->getString("objLinkType") == "wrapped by"){
-                    newObjLink.type = _WRAPPED_BY;
+                    newObjLink.type = WRAPPED_BY;
                 }
                 newObjLink.isFunctional = true;
                 newObjLink.strength = mapLink->getDouble("strength");
@@ -113,14 +113,14 @@ void linkObjects(gameData *dt, ID obj1, objLinkType linkType, ID obj2, bool isFu
     ao(dt, obj1)->linkedObjects.push_back(link1);
 
     ObjectLink link2;
-    if(linkType == _WRAPS){
-        link2.type = _WRAPPED_BY;
+    if(linkType == WRAPS){
+        link2.type = WRAPPED_BY;
     }
-    else if(linkType == _WRAPPED_BY){
-        link2.type = _WRAPS;
+    else if(linkType == WRAPPED_BY){
+        link2.type = WRAPS;
     }
     else{
-        link2.type = _ADJOINS;
+        link2.type = ADJOINS;
     }
     link2.isFunctional = isFunctional;
     link2.strength = strength;
@@ -155,9 +155,9 @@ void printObjects(gameData *dt){
 
 std::vector<ID> getPhysWeapons(gameData *dt, ID body){
     std::vector<ID> result;
-    std::vector<ID> grippers = getLinkedObjs(dt, body, _ANY, FUNCTIONAL, "gripper", false);
+    std::vector<ID> grippers = getLinkedObjs(dt, body, ANY, FUNCTIONAL, "gripper", false);
     for(auto part : grippers){
-        std::vector<ID> adjoins = getLinkedObjs(dt, part, _ADJOINS, NON_FUNCTIONAL, "", true);
+        std::vector<ID> adjoins = getLinkedObjs(dt, part, ADJOINS, NON_FUNCTIONAL, "", true);
         result.insert(result.end(), adjoins.begin(), adjoins.end());
     }
     return result;
@@ -180,7 +180,7 @@ std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType,
     std::vector<ID> result;
     for(auto objLink : ao(dt, obj)->linkedObjects){
         if(std::count(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == 0){
-            if((objLink.type == linkType || linkType == _ANY) && ((objLink.isFunctional && funcLimit == FUNCTIONAL) || (!objLink.isFunctional && funcLimit == NON_FUNCTIONAL) || funcLimit == FUNC_OR_NONFUNC) && objHasUsageTag(dt, objLink.subject, usageTag)){
+            if((objLink.type == linkType || linkType == ANY) && ((objLink.isFunctional && funcLimit == FUNCTIONAL) || (!objLink.isFunctional && funcLimit == NON_FUNCTIONAL) || funcLimit == FUNC_OR_NONFUNC) && objHasUsageTag(dt, objLink.subject, usageTag)){
                 result.push_back(objLink.subject);
             }
         }
@@ -199,7 +199,7 @@ std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType,
 
 /*
 To "not care" about a property:
-    linkType = _ANY
+    linkType = ANY
     limitToFuncLinks = false
     usageTag = ""
 */
