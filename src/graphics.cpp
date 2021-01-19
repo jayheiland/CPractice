@@ -51,39 +51,142 @@ void panCameraHelper(gameData *dt){
 }
 
 void panCamera(gameData *dt, CameraPanDirection direction){
-    double x = dt->cameraPos[0]-dt->cameraTarget.loc.x;
-    double y = dt->cameraPos[1]-dt->cameraTarget.loc.y;
+    double diffX = dt->cameraPos[0]-dt->cameraTarget.loc.x;
+    double diffY = dt->cameraPos[1]-dt->cameraTarget.loc.y;
+    double moveX;
+    double moveY;
+    double panStep = 2.0;
     switch(direction){
         case PANUP: 
-            if(x>0 && y>0){
-                dt->cameraPos[0]-=1;
-                dt->cameraPos[1]-=1;
-                dt->cameraTarget.loc.x-=1;
-                dt->cameraTarget.loc.y-=1;
+            if(diffX>0 && diffY>0){
+                moveX=-panStep;
+                moveY=-panStep;
             }
-            else if(x>0 && y<0){
-                dt->cameraPos[0]-=1;
-                dt->cameraPos[1]+=1;
-                dt->cameraTarget.loc.x-=1;
-                dt->cameraTarget.loc.y+=1;
+            else if(diffX>0 && diffY<0){
+                moveX=-panStep;
+                moveY=panStep;
             }
-            else if(x<0 && y>0){
-                dt->cameraPos[0]+=1;
-                dt->cameraPos[1]-=1;
-                dt->cameraTarget.loc.x+=1;
-                dt->cameraTarget.loc.y-=1;
+            else if(diffX<0 && diffY>0){
+                moveX=panStep;
+                moveY=-panStep;
             }
-            else if(x<0 && y<0){
-                dt->cameraPos[0]+=1;
-                dt->cameraPos[1]+=1;
-                dt->cameraTarget.loc.x+=1;
-                dt->cameraTarget.loc.y+=1;
+            else if(diffX<0 && diffY<0){
+                moveX=panStep;
+                moveY=panStep;
+            }
+            break;
+        case PANDOWN: 
+            if(diffX>0 && diffY>0){
+                moveX=panStep;
+                moveY=panStep;
+            }
+            else if(diffX>0 && diffY<0){
+                moveX=panStep;
+                moveY=-panStep;
+            }
+            else if(diffX<0 && diffY>0){
+                moveX=-panStep;
+                moveY=panStep;
+            }
+            else if(diffX<0 && diffY<0){
+                moveX=-panStep;
+                moveY=-panStep;
+            }
+            break;
+        case PANLEFT: 
+            if(diffX>0 && diffY>0){
+                moveX=panStep;
+                moveY=-panStep;
+            }
+            else if(diffX>0 && diffY<0){
+                moveX=-panStep;
+                moveY=-panStep;
+            }
+            else if(diffX<0 && diffY>0){
+                moveX=panStep;
+                moveY=panStep;
+            }
+            else if(diffX<0 && diffY<0){
+                moveX=-panStep;
+                moveY=panStep;
+            }
+            break;
+        case PANRIGHT: 
+            if(diffX>0 && diffY>0){
+                moveX=-panStep;
+                moveY=panStep;
+            }
+            else if(diffX>0 && diffY<0){
+                moveX=panStep;
+                moveY=panStep;
+            }
+            else if(diffX<0 && diffY>0){
+                moveX=-panStep;
+                moveY=-panStep;
+            }
+            else if(diffX<0 && diffY<0){
+                moveX=panStep;
+                moveY=-panStep;
             }
             break;
     }
+    dt->cameraPos[0]+=moveX;
+    dt->cameraPos[1]+=moveY;
+    dt->cameraTarget.loc.x+=moveX;
+    dt->cameraTarget.loc.y+=moveY;
     dt->grph->setCamera(glm::vec3((float)dt->cameraPos[0], (float)dt->cameraPos[1], (float)dt->cameraPos[2]), glm::vec3((float)dt->cameraTarget.loc.x, (float)dt->cameraTarget.loc.y, (float)dt->cameraTarget.loc.z));
 }
 
 void orbitCamera(gameData *dt, CameraOrbitDirection direction){
-    
+    double x = dt->cameraPos[0]-dt->cameraTarget.loc.x;
+    double y = dt->cameraPos[1]-dt->cameraTarget.loc.y;
+    float angle;
+    switch(direction){
+        case ORBITLEFT:{
+            //default camera angle
+            if(x>0 && y>0){
+                dt->cameraPos[1]=dt->cameraTarget.loc.y-15.0;
+                angle = glm::radians(270.0f);
+            }
+            //default camera angle
+            else if(x>0 && y<0){
+                dt->cameraPos[0]=dt->cameraTarget.loc.x-15.0;
+                angle = glm::radians(180.0f);
+            }
+            else if(x<0 && y<0){
+                dt->cameraPos[1]=dt->cameraTarget.loc.y+15.0;
+                angle = glm::radians(90.0f);
+            }
+            else if(x<0 && y>0){
+                dt->cameraPos[0]=dt->cameraTarget.loc.x+15.0;
+                angle = glm::radians(0.0f);
+            }
+            break;
+        }
+        case ORBITRIGHT:{
+            //default camera angle
+            if(x>0 && y>0){
+                dt->cameraPos[0]=dt->cameraTarget.loc.x-15.0;
+                angle = glm::radians(90.0f);
+            }
+            //default camera angle
+            else if(x>0 && y<0){
+                dt->cameraPos[1]=dt->cameraTarget.loc.y+15.0;
+                angle = glm::radians(0.0f);
+            }
+            else if(x<0 && y<0){
+                dt->cameraPos[0]=dt->cameraTarget.loc.x+15.0;
+                angle = glm::radians(270.0f);
+            }
+            else if(x<0 && y>0){
+                dt->cameraPos[1]=dt->cameraTarget.loc.y-15.0;
+                angle = glm::radians(180.0f);
+            }
+            break;
+        }
+    }
+    for(auto crt : dt->crtGroup){
+        dt->grph->setModelRotation(crt.second.model, glm::vec3(0.0f, 0.0f, 1.0f), angle);
+    }
+    dt->grph->setCamera(glm::vec3((float)dt->cameraPos[0], (float)dt->cameraPos[1], (float)dt->cameraPos[2]), glm::vec3((float)dt->cameraTarget.loc.x, (float)dt->cameraTarget.loc.y, (float)dt->cameraTarget.loc.z));
 }

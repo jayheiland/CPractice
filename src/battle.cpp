@@ -74,7 +74,13 @@ void processBattle(gameData *dt){
                     advanceTurnQueue(dt);
                     break;
                 }
-                case GLFW_KEY_W: panCamera(dt, PANUP); break;
+                case GLFW_KEY_W: {panCamera(dt, PANUP); break;}
+                case GLFW_KEY_S: {panCamera(dt, PANDOWN); break;}
+                case GLFW_KEY_A: {panCamera(dt, PANLEFT); break;}
+                case GLFW_KEY_D: {panCamera(dt, PANRIGHT); break;}
+                case GLFW_KEY_Q: {orbitCamera(dt, ORBITLEFT); break;}
+                case GLFW_KEY_E: {orbitCamera(dt, ORBITRIGHT); break;}
+                default: break;
             }
             resetKeyPressed();
         }
