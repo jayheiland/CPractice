@@ -6,6 +6,26 @@ void startBattle(gameData *dt){
     createTurnQueue(dt);
 }
 
+void highlightMovementRange(gameData *dt, ID crt, bool isPC){
+    for(auto marker : dt->movementRangeMarkers){
+        dt->grph->remove3DModel(marker);
+    }
+    dt->movementRangeMarkers.clear();
+    TextureID txtr;
+    if(isPC){
+        txtr = dt->movementRangePCTxtr;
+    }
+    else{
+        txtr = dt->movementRangeNPCTxtr;
+    }
+    auto crtPtr = &dt->crtGroup.at(crt);
+    auto range = getPathingRange(dt, &crtPtr->loc.loc, (double)crtPtr->att_agi, getMobilityTags(dt, crt));
+    for(auto loc : range){
+        GraphObjID marker = dt->grph->createModel("models/movementRangeMarker.obj", txtr, glm::vec3(loc.loc.x,loc.loc.y,loc.loc.z));
+        dt->movementRangeMarkers.push_back(marker);
+    }
+}
+
 void processBattle(gameData *dt){
     if(dt->inBattle){
         //PC turn
@@ -23,6 +43,7 @@ void processBattle(gameData *dt){
                     if(dt->crtGroup.at(selecCrt).isPC){
                         dt->selectedPC = selecCrt;
                         std::cout << "Selected PC: " << dt->selectedPC << " at z :" << ac(dt, dt->selectedPC)->loc.loc.z << std::endl;
+                        highlightMovementRange(dt, dt->selectedPC, true);
                     }
                     else{
                         dt->selectedNPC = selecCrt;
@@ -43,7 +64,11 @@ void processBattle(gameData *dt){
                 WorldLoc destination;
                 destination.loc = rClickedLoc;
                 // std::cout << "Attempting to move to node at: " << destination.loc.x << "," << destination.loc.y << "," << destination.loc.z << " which is type: " << getNode(&dt->loadedChunk, rClickedLoc)->nodeName << std::endl;
-                moveToLocation(dt, dt->selectedPC, destination);
+                for(auto pair : dt->boundingBoxToCreature){
+                    if(pair.second == dt->selectedPC){
+                        moveToLocation(dt, dt->selectedPC, pair.first, destination);
+                    }
+                }
             }
             //handle button clicks
             ID btnId = getLeftClickedButtonID();

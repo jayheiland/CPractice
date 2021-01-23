@@ -211,7 +211,7 @@ bool canGoTo(gameData *dt, WorldNode *node, std::vector<std::string> mobilityTag
     return false;
 }
 
-void markNodeNeighborsDistances(gameData *dt, WorldNode *curr, Vec3 *end, double edgeLen, std::vector<std::string> mobilityTags){
+void markNodeNeighborsDistances(gameData *dt, WorldNode *curr, double edgeLen, std::vector<std::string> mobilityTags){
     double calcLen = (curr->distance_Pathing) + edgeLen;
     Vec3 loc = curr->loc;
     Vec3 size = dt->loadedChunk.size;
@@ -324,7 +324,7 @@ Vec3 *worldPath(gameData *dt, Vec3 *start, Vec3 *end, int *pathLen, std::vector<
         }
         curr = &dt->loadedChunk.nodes[unvisNodes[0].x][unvisNodes[0].y][unvisNodes[0].z];
         // std::cout << "about to mark dists for node at: " << curr->loc.x << "," << curr->loc.y << "," << curr->loc.z << std::endl;
-        markNodeNeighborsDistances(dt, curr, end, edgeLen, mobilityTags);
+        markNodeNeighborsDistances(dt, curr, edgeLen, mobilityTags);
         curr->visited_Pathing = 1;
         for(idx = 1; idx < unvisCount; idx++){
             unvisNodes[idx-1] = unvisNodes[idx];
@@ -346,6 +346,67 @@ Vec3 *worldPath(gameData *dt, Vec3 *start, Vec3 *end, int *pathLen, std::vector<
     free(tempPath);
     *pathLen = idx;
     return path;
+}
+
+std::vector<WorldLoc> getPathingRange(gameData *dt, Vec3 *start, double dist, std::vector<std::string> mobilityTags){
+    WorldNode *curr;
+    double edgeLen = 1.0;
+    size_t x = dt->loadedChunk.size.x;
+    size_t y = dt->loadedChunk.size.y;
+    size_t z = dt->loadedChunk.size.z;
+    std::vector<WorldLoc> range;
+    Vec3 *unvisNodes = (Vec3 *)malloc(x * y * z * sizeof(Vec3));
+    int unvisCount = 0;
+    int i,j,k, idx;
+    for (i = 0; i <  dt->loadedChunk.size.x; i++){
+        for (j = 0; j < dt->loadedChunk.size.y; j++){
+            for (k = 0; k < dt->loadedChunk.size.z; k++){
+                dt->loadedChunk.nodes[i][j][k].visited_Pathing = 0;
+                dt->loadedChunk.nodes[i][j][k].distance_Pathing = DBL_MAX;
+                set(&unvisNodes[unvisCount], i,j,k);
+                //printf("index %d: %d,%d,%d\n", unvisCount, unvisNodes[unvisCount].x, unvisNodes[unvisCount].y, unvisNodes[unvisCount].z);
+                unvisCount++;
+            }
+        }
+    }
+
+    dt->loadedChunk.nodes[start->x][start->y][start->z].distance_Pathing = 0;
+
+    curr = &dt->loadedChunk.nodes[start->x][start->y][start->z];
+
+    while(curr->distance_Pathing < dist){
+        WorldLoc loc;
+        loc.chunk = dt->loadedChunk.chunkLoc;
+        loc.loc = curr->loc;
+        range.push_back(loc);
+        //debug
+        // printf("Before sorting unvisNodes array (of unvisCount = %d):\n", unvisCount);
+        // for(idx = 0; idx < unvisCount; idx++){
+        //     printf("%d: %d,%d,%d  dist: %d\n", idx, unvisNodes[idx].x, unvisNodes[idx].y, unvisNodes[idx].z, world[unvisNodes[idx].x][unvisNodes[idx].y][unvisNodes[idx].z].distance_Pathing);
+        // }
+        //uncomment this!
+        quicksort(dt->loadedChunk.nodes, unvisNodes, 0, unvisCount-1);
+        //debug
+        // printf("After sorting unvisNodes array (of unvisCount = %d):\n", unvisCount);
+        // for(idx = 0; idx < unvisCount; idx++){
+        //     printf("%d: %d,%d,%d  dist: %d\n", idx, unvisNodes[idx].x, unvisNodes[idx].y, unvisNodes[idx].z, world[unvisNodes[idx].x][unvisNodes[idx].y][unvisNodes[idx].z].distance_Pathing);
+        // }
+        //uncomment this!
+        if(dt->loadedChunk.nodes[unvisNodes[0].x][unvisNodes[0].y][unvisNodes[0].z].distance_Pathing == DBL_MAX){
+            printf("Broke from distance painting loop. Likely no possible path.\n");
+            return range;
+        }
+        curr = &dt->loadedChunk.nodes[unvisNodes[0].x][unvisNodes[0].y][unvisNodes[0].z];
+        // std::cout << "about to mark dists for node at: " << curr->loc.x << "," << curr->loc.y << "," << curr->loc.z << std::endl;
+        markNodeNeighborsDistances(dt, curr, edgeLen, mobilityTags);
+        curr->visited_Pathing = 1;
+        for(idx = 1; idx < unvisCount; idx++){
+            unvisNodes[idx-1] = unvisNodes[idx];
+        }
+        unvisCount--;
+    }
+    free(unvisNodes);
+    return range;
 }
 
 WorldNode *getNode(WorldChunk *chunk, Vec3 loc){

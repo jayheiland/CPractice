@@ -17,7 +17,9 @@ ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, st
 
 void printCreatures(std::unordered_map<ID, Creature> *crtGroup);
 
-void moveToLocation(gameData *dt, ID creature, WorldLoc loc);
+std::vector<std::string> getMobilityTags(gameData *dt, ID crt);
+
+void moveToLocation(gameData *dt, ID creature, GraphObjID BoundingBox, WorldLoc loc);
 
 void loadFactions_Json(std::unordered_map<factionCode, Faction> *fctGroup, std::string path);
 

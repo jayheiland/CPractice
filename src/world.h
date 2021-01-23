@@ -20,6 +20,10 @@ struct Vec3{
 struct WorldLoc{
     Vec3 chunk;
     Vec3 loc;
+    bool operator==(const WorldLoc& a) const
+    {
+        return (loc == a.loc && chunk.x == a.chunk.x && chunk.y == a.chunk.y && chunk.z == a.chunk.z);
+    }
 };
 
 //a piece of 3D world space

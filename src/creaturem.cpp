@@ -47,6 +47,9 @@ ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, st
     crt.loc.chunk = dt->loadedChunk.chunkLoc;
     crt.loc.loc = pos;
     crt.model = dt->grph->createModel("./models/cartwright_sprite.obj", dt->crtTextures.at(dt->crtRules.at(crtCode).textureName), glm::vec3(pos.x, pos.y, pos.z));
+    //attributes
+    crt.att_agi = 4;
+    //attributes, end
     ID id = genID();
     dt->crtGroup[id] = crt;
     dt->boundingBoxToCreature.insert(std::make_pair(dt->grph->createBoundingBox(glm::vec3(pos.x-0.5, pos.y-0.5, pos.z-0.5), glm::vec3(pos.x+0.5, pos.y+0.5, pos.z+1.5)), id));
@@ -67,13 +70,14 @@ std::vector<std::string> getMobilityTags(gameData *dt, ID crt){
     return result;
 }
 
-void moveToLocation(gameData *dt, ID creature, WorldLoc loc){
+void moveToLocation(gameData *dt, ID creature, GraphObjID boundingBox, WorldLoc loc){
     int pathLen;
     Vec3 *path = worldPath(dt, &dt->crtGroup.at(creature).loc.loc, &loc.loc, &pathLen, getMobilityTags(dt, creature));
     for(int idx = pathLen-1; idx >= 0; idx--){
         Vec3 newLoc = path[idx];
         dt->crtGroup.at(creature).loc.loc = newLoc;
         dt->grph->setModelPosition(ac(dt, creature)->model, glm::vec3(newLoc.x, newLoc.y, newLoc.z));
+        dt->grph->setBoundingBoxBounds(boundingBox, glm::vec3(newLoc.x-0.5, newLoc.y-0.5, newLoc.z-0.5), glm::vec3(newLoc.x+0.5, newLoc.y+0.5, newLoc.z+1.5));
     }
 }
 

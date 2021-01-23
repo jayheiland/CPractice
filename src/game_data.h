@@ -53,6 +53,9 @@ struct gameData{
     GraphicsLayer *grph;
     WorldLoc cameraTarget;
     double cameraPos[3];
+    std::vector<GraphObjID> movementRangeMarkers;
+    TextureID movementRangePCTxtr;
+    TextureID movementRangeNPCTxtr;
 
         //GUI elements
         GUI_StackSelector weaponSelector;

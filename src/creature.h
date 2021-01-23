@@ -38,6 +38,14 @@ struct Creature{
     Vec3 *path;
     //graphics data
     GraphObjID model;
+    //attributes
+    uint att_vit; //vitality
+    uint att_end; //endurance
+    uint att_agi; //agility
+    uint att_str; //strength
+    uint att_dex; //dexterity
+    uint att_int; //intelligence
+    uint att_for; //fortitude
 };
 
 struct CreatureRule{

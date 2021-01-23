@@ -12,6 +12,8 @@ void graphicsSetup(gameData *dt){
     dt->cameraPos[1]=15.0;
     dt->cameraPos[2]=9.0;
 	dt->grph->loadFont("textures/font.png");
+    dt->movementRangePCTxtr = dt->grph->createTexture("textures/blue.png");
+    dt->movementRangeNPCTxtr = dt->grph->createTexture("textures/red.png");
     resetLeftClickedButtonID();
     resetKeyPressed();
 }
