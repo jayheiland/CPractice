@@ -71,13 +71,15 @@ std::vector<std::string> getMobilityTags(gameData *dt, ID crt){
 }
 
 void moveToLocation(gameData *dt, ID creature, GraphObjID boundingBox, WorldLoc loc){
-    int pathLen;
-    Vec3 *path = worldPath(dt, &dt->crtGroup.at(creature).loc.loc, &loc.loc, &pathLen, getMobilityTags(dt, creature));
-    for(int idx = pathLen-1; idx >= 0; idx--){
-        Vec3 newLoc = path[idx];
-        dt->crtGroup.at(creature).loc.loc = newLoc;
-        dt->grph->setModelPosition(ac(dt, creature)->model, glm::vec3(newLoc.x, newLoc.y, newLoc.z));
-        dt->grph->setBoundingBoxBounds(boundingBox, glm::vec3(newLoc.x-0.5, newLoc.y-0.5, newLoc.z-0.5), glm::vec3(newLoc.x+0.5, newLoc.y+0.5, newLoc.z+1.5));
+    auto crtPtr = ac(dt, creature);
+    auto path = worldPath(dt, &crtPtr->loc.loc, &loc.loc, (double)crtPtr->att_agi, getMobilityTags(dt, creature));
+    if(path.size() > 0){
+        for(int idx = path.size()-1; idx >= 0; idx--){
+            Vec3 newLoc = path[idx].loc;
+            dt->crtGroup.at(creature).loc.loc = newLoc;
+            dt->grph->setModelPosition(crtPtr->model, glm::vec3(newLoc.x, newLoc.y, newLoc.z));
+            dt->grph->setBoundingBoxBounds(boundingBox, glm::vec3(newLoc.x-0.5, newLoc.y-0.5, newLoc.z-0.5), glm::vec3(newLoc.x+0.5, newLoc.y+0.5, newLoc.z+1.5));
+        }
     }
 }
 

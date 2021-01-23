@@ -30,7 +30,6 @@ struct WorldLoc{
 struct WorldNode{
     Vec3 loc;
     char nodeName[5];
-    GraphObjID model;
     int visited_Pathing;
     double distance_Pathing;
     struct WorldNode* east;
@@ -47,7 +46,6 @@ struct WorldNode{
 
 struct NodeInfo{
     std::string material;
-    TextureID texture;
 };
 
 //a 3D matrix of worldNodes
@@ -61,4 +59,5 @@ struct WorldChunk{
     struct WorldChunk* south;
     struct WorldChunk* up;
     struct WorldChunk* down;
+    GraphObjID model;
 };

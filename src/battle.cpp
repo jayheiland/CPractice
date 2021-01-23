@@ -18,7 +18,7 @@ void highlightMovementRange(gameData *dt, ID crt, bool isPC){
     else{
         txtr = dt->movementRangeNPCTxtr;
     }
-    auto crtPtr = &dt->crtGroup.at(crt);
+    auto crtPtr = ac(dt, crt);
     auto range = getPathingRange(dt, &crtPtr->loc.loc, (double)crtPtr->att_agi, getMobilityTags(dt, crt));
     for(auto loc : range){
         GraphObjID marker = dt->grph->createModel("models/movementRangeMarker.obj", txtr, glm::vec3(loc.loc.x,loc.loc.y,loc.loc.z));
