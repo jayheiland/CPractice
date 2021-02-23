@@ -1,12 +1,12 @@
 #include "battle.h"
 
 
-void startBattle(gameData *dt){
+void startBattle(gamedata *dt){
     dt->inBattle = true;
     createTurnQueue(dt);
 }
 
-void highlightMovementRange(gameData *dt, ID crt, bool isPC){
+void highlightMovementRange(gamedata *dt, ID crt, bool isPC){
     for(auto marker : dt->movementRangeMarkers){
         dt->grph->remove3DModel(marker);
     }
@@ -19,14 +19,14 @@ void highlightMovementRange(gameData *dt, ID crt, bool isPC){
         txtr = dt->movementRangeNPCTxtr;
     }
     auto crtPtr = ac(dt, crt);
-    auto range = getPathingRange(dt, &crtPtr->loc.loc, (double)crtPtr->att_agi, getMobilityTags(dt, crt));
+    auto range = getPathingRange(dt, &crtPtr->loc, (double)crtPtr->att_agi, getMobilityTags(dt, crt));
     for(auto loc : range){
-        GraphObjID marker = dt->grph->createModel("models/movementRangeMarker.obj", txtr, glm::vec3(loc.loc.x,loc.loc.y,loc.loc.z));
+        GraphObjID marker = dt->grph->createModel("models/movementRangeMarker.obj", txtr, glm::vec3(loc.x,loc.y,loc.z));
         dt->movementRangeMarkers.push_back(marker);
     }
 }
 
-void processBattle(gameData *dt){
+void processBattle(gamedata *dt){
     if(dt->inBattle){
         //PC turn
         if(ac(dt, dt->turnQueue.front())->isPC){
@@ -42,7 +42,7 @@ void processBattle(gameData *dt){
                     ID selecCrt = dt->boundingBoxToCreature.at(bBoxId);
                     if(dt->crtGroup.at(selecCrt).isPC){
                         dt->selectedPC = selecCrt;
-                        std::cout << "Selected PC: " << dt->selectedPC << " at z :" << ac(dt, dt->selectedPC)->loc.loc.z << std::endl;
+                        std::cout << "Selected PC: " << dt->selectedPC << " at z :" << ac(dt, dt->selectedPC)->loc.z << std::endl;
                         highlightMovementRange(dt, dt->selectedPC, true);
                     }
                     else{
@@ -52,17 +52,17 @@ void processBattle(gameData *dt){
                     std::cout << "got creature: " << selecCrt << std::endl;
                 }
                 else{
-                    lClickedLoc = dt->boundingBoxToLocation.at(bBoxId).loc;
+                    lClickedLoc = dt->boundingBoxToLocation.at(bBoxId);
                 }
                 //std::cout << "Clicked the node at: " << clickedLoc.x << "," << clickedLoc.y << "," << clickedLoc.z << " which is type: " << getNode(&dt->loadedChunk, clickedLoc) << std::endl;
             }
             bBoxId = dt->grph->getClickedBoundingBox(RMB);
             if(bBoxId != 0 && dt->boundingBoxToCreature.find(bBoxId) == dt->boundingBoxToCreature.end()){
-                Vec3 rClickedLoc = dt->boundingBoxToLocation.at(bBoxId).loc;
+                Vec3 rClickedLoc = dt->boundingBoxToLocation.at(bBoxId);
                 // std::cout << "Right clicked the node at: " << rClickedLoc.x << "," << rClickedLoc.y << "," << rClickedLoc.z << " which is type: " << getNode(&dt->loadedChunk, rClickedLoc)->nodeName << std::endl;
                 rClickedLoc.z++; //move to the node above the one you clicked
-                WorldLoc destination;
-                destination.loc = rClickedLoc;
+                Loc destination;
+                destination = rClickedLoc;
                 // std::cout << "Attempting to move to node at: " << destination.loc.x << "," << destination.loc.y << "," << destination.loc.z << " which is type: " << getNode(&dt->loadedChunk, rClickedLoc)->nodeName << std::endl;
                 for(auto pair : dt->boundingBoxToCreature){
                     if(pair.second == dt->selectedPC){
@@ -126,19 +126,19 @@ void processBattle(gameData *dt){
     }
 }
 
-void createTurnQueue(gameData *dt){
+void createTurnQueue(gamedata *dt){
     dt->turnQueue = {};
     for(auto crt : dt->crtGroup){
         dt->turnQueue.push(crt.first);
     }
 }
 
-void advanceTurnQueue(gameData *dt){
+void advanceTurnQueue(gamedata *dt){
     dt->turnQueue.push(dt->turnQueue.front());
     dt->turnQueue.pop();
 }
 
-void createStackSelector(gameData *dt, GUI_StackSelector *selector, std::vector<ID> objects, double x, double y){
+void createStackSelector(gamedata *dt, GUI_StackSelector *selector, std::vector<ID> objects, double x, double y){
     for(auto btn : selector->selectorButtons){
         dt->grph->removeButton(btn.second);
     }
@@ -152,13 +152,13 @@ void createStackSelector(gameData *dt, GUI_StackSelector *selector, std::vector<
     }
 }
 
-void createWeaponSelectorMenu(gameData *dt, ID playerChar){
+void createWeaponSelectorMenu(gamedata *dt, ID playerChar){
     std::vector<ID> weapons = getPhysWeapons(dt, ac(dt, playerChar)->body);
     std::pair<uint, uint> dimen = dt->grph->getScreenDimensions();
     createStackSelector(dt, &dt->weaponSelector, weapons, 20.0/dimen.first, 50.0/dimen.second);
 }
 
-void createTargetSelectorMenu(gameData *dt, ID character){
+void createTargetSelectorMenu(gamedata *dt, ID character){
     std::vector<ID> targets = getLinkedObjs(dt, ac(dt,character)->body, ANY, FUNCTIONAL, "", false);
     targets.push_back(ac(dt,character)->body);
     std::pair<uint, uint> dimen = dt->grph->getScreenDimensions();

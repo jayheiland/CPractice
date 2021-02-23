@@ -5,14 +5,14 @@
 #include "objectm.h"
 #include "creaturem.h"
 
-void startBattle(gameData *dt);
+void startBattle(gamedata *dt);
 
-void processBattle(gameData *dt);
+void processBattle(gamedata *dt);
 
-void createTurnQueue(gameData *dt);
+void createTurnQueue(gamedata *dt);
 
-void advanceTurnQueue(gameData *dt);
+void advanceTurnQueue(gamedata *dt);
 
-void createWeaponSelectorMenu(gameData *dt, ID playerChar);
+void createWeaponSelectorMenu(gamedata *dt, ID playerChar);
 
-void createTargetSelectorMenu(gameData *dt, ID character);
+void createTargetSelectorMenu(gamedata *dt, ID character);

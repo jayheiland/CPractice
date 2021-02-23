@@ -12,12 +12,16 @@
 #include "graphics.h"
 #include "battle.h"
 
+// using std::string;
+// using std::vector;
+
+
 //engine settings; hardcoded for now, to be loaded from a file later
 engineData ENGINE_DATA;
 ID masterIDCounter;
 
-void createWorld(gameData *dt){
-    dt->loadedChunk = loadChunk(dt, "./data/arena.json", "./data/nodeInfo.json");
+void createWorld(gamedata *dt){
+    dt->loadedChunk = loadChunk(dt, "./data/testArena/arena-1-1.json", "./data/nodeInfo.json");
     // Vec3 test = {0,0,2};
     // Vec3 testDest = {dt->loadedChunk.size.x-1, dt->loadedChunk.size.y-1, 2};
     // Vec3 *path;
@@ -33,12 +37,12 @@ void gameSetup(){
     masterIDCounter = 1;
 }
 
-void processModels(gameData *dt){
+void processModels(gamedata *dt){
     processBattle(dt);
 }
 
 void gameLoop(){
-    gameData data;
+    gamedata data;
 
     //setup GUI
     GraphicsLayer grph("./shaders/vert.spv", "./shaders/frag.spv");

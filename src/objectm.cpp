@@ -59,7 +59,7 @@ void loadComponentMaps(std::unordered_map<std::string, ComponentMap> *componentM
     }
 }
 
-ID createObject(gameData *dt, objectCode objCode){
+ID createObject(gamedata *dt, objectCode objCode){
     Object newObj;
     ObjectRule rule = dt->objRules.at(objCode);
     newObj.name = rule.name;
@@ -75,7 +75,7 @@ ID createObject(gameData *dt, objectCode objCode){
     return id;
 }
 
-ID createObjectsFromComponentMap(gameData *dt, std::string mapName){
+ID createObjectsFromComponentMap(gamedata *dt, std::string mapName){
     ComponentMap cm = dt->componentMaps.at(mapName);
     std::vector<std::pair<std::string, ID> > cmpNamesToIDsMap;
     for(auto node : cm.map){
@@ -104,7 +104,7 @@ void removeObject(std::unordered_map<ID, Object> *objGroup, ID id_){
     objGroup->erase(id_);
 }
 
-void linkObjects(gameData *dt, ID obj1, objLinkType linkType, ID obj2, bool isFunctional, double strength){
+void linkObjects(gamedata *dt, ID obj1, objLinkType linkType, ID obj2, bool isFunctional, double strength){
     ObjectLink link1;
     link1.type = linkType;
     link1.isFunctional = isFunctional;
@@ -128,7 +128,7 @@ void linkObjects(gameData *dt, ID obj1, objLinkType linkType, ID obj2, bool isFu
     ao(dt, obj2)->linkedObjects.push_back(link2);
 }
 
-void unlinkObjects(gameData *dt, ID obj1, ID obj2){
+void unlinkObjects(gamedata *dt, ID obj1, ID obj2){
     std::vector<ObjectLink> *links1 = &dt->objGroup.at(obj1).linkedObjects;
     for(auto itr = links1->begin(); itr != links1->end(); itr++){
         if(itr->subject == obj2){
@@ -146,14 +146,14 @@ void unlinkObjects(gameData *dt, ID obj1, ID obj2){
     }
 }
 
-void printObjects(gameData *dt){
+void printObjects(gamedata *dt){
     std::cout << "------------------------------Loaded Objects----------------------------------" << std::endl;
     for(std::pair<ID, Object> obj : dt->objGroup){
         printObject(&dt->objGroup, &dt->objRules, obj.first);
     }
 }
 
-std::vector<ID> getPhysWeapons(gameData *dt, ID body){
+std::vector<ID> getPhysWeapons(gamedata *dt, ID body){
     std::vector<ID> result;
     std::vector<ID> grippers = getLinkedObjs(dt, body, ANY, FUNCTIONAL, "gripper", false);
     for(auto part : grippers){
@@ -163,7 +163,7 @@ std::vector<ID> getPhysWeapons(gameData *dt, ID body){
     return result;
 }
 
-bool objHasUsageTag(gameData *dt, ID obj, std::string tag){
+bool objHasUsageTag(gamedata *dt, ID obj, std::string tag){
     auto rule = dt->objRules.at(ao(dt, obj)->objCode);
     if(tag == ""){
         return true;
@@ -176,7 +176,7 @@ bool objHasUsageTag(gameData *dt, ID obj, std::string tag){
     return false;
 }
 
-std::vector<ID> getLinkedObjs_Helper(gameData *dt, ID obj, objLinkType linkType, enum FunctionalLinkLimitation funcLimit, std::string usageTag, std::vector<ID> *visitedObjs, bool immediateLinksOnly){
+std::vector<ID> getLinkedObjs_Helper(gamedata *dt, ID obj, objLinkType linkType, enum FunctionalLinkLimitation funcLimit, std::string usageTag, std::vector<ID> *visitedObjs, bool immediateLinksOnly){
     std::vector<ID> result;
     for(auto objLink : ao(dt, obj)->linkedObjects){
         if(std::count(visitedObjs->begin(), visitedObjs->end(), objLink.subject) == 0){
@@ -203,12 +203,12 @@ To "not care" about a property:
     limitToFuncLinks = false
     usageTag = ""
 */
-std::vector<ID> getLinkedObjs(gameData *dt, ID obj, objLinkType linkType, enum FunctionalLinkLimitation funcLimit, std::string usageTag, bool immediateLinksOnly){
+std::vector<ID> getLinkedObjs(gamedata *dt, ID obj, objLinkType linkType, enum FunctionalLinkLimitation funcLimit, std::string usageTag, bool immediateLinksOnly){
     std::vector<ID> visitedObjs;
     return  getLinkedObjs_Helper(dt, obj, linkType, funcLimit, usageTag, &visitedObjs, immediateLinksOnly);
 }
 
-void attackObject(gameData *dt, ID weapon, ID subject){
+void attackObject(gamedata *dt, ID weapon, ID subject){
     if(subject != NULL_ID){
         Object *sub = ao(dt, subject);
         sub->integrity -= getMass(dt, weapon);
@@ -220,7 +220,7 @@ void attackObject(gameData *dt, ID weapon, ID subject){
     }
 }
 
-double getMass(gameData *dt, std::vector<ID> objs){
+double getMass(gamedata *dt, std::vector<ID> objs){
     double result = 0;
     for(auto obj : objs){
         Object *oPtr = ao(dt, obj);
@@ -229,17 +229,17 @@ double getMass(gameData *dt, std::vector<ID> objs){
     return result;
 }
 
-double getMass(gameData *dt, ID obj){
+double getMass(gamedata *dt, ID obj){
     Object *oPtr = ao(dt, obj);
     return oPtr->height * oPtr->length * oPtr->width * dt->matGroup.at(oPtr->materialName).density;
 }
 
 //ao = 'access object'
-Object *ao(gameData *dt, ID id){
+Object *ao(gamedata *dt, ID id){
     return &dt->objGroup.at(id);
 }
 
-std::vector<ID> getObjsWithCode(gameData *dt, objectCode objCode){
+std::vector<ID> getObjsWithCode(gamedata *dt, objectCode objCode){
     std::vector<ID> result;
     for(auto obj : dt->objGroup){
         if(obj.second.objCode == objCode){
@@ -249,7 +249,7 @@ std::vector<ID> getObjsWithCode(gameData *dt, objectCode objCode){
     return result;
 }
 
-void printObjsWithCode(gameData *dt, objectCode objCode){
+void printObjsWithCode(gamedata *dt, objectCode objCode){
     std::vector<ID> objs = getObjsWithCode(dt, objCode);
     for(auto obj : objs){
         printObject(&dt->objGroup, &dt->objRules, obj);

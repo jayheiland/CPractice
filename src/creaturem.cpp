@@ -1,6 +1,6 @@
 #include "creaturem.h"
 
-void loadCreatureRules_Json(gameData *dt, std::string path){
+void loadCreatureRules_Json(gamedata *dt, std::string path){
     CreatureRule crtRule;
     JsonObject *rulesFromFile = parseJsonFile(path);
     for(auto rule : rulesFromFile->getJsonArray("creatureRules").getJsonObjectArray()){
@@ -30,11 +30,11 @@ void loadFactions_Json(std::unordered_map<factionCode, Faction> *fctGroup, std::
 }
 
 //ac = 'access creature'
-Creature *ac(gameData *dt, ID id){
+Creature *ac(gamedata *dt, ID id){
     return &dt->crtGroup.at(id);
 }
 
-ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, std::string name, factionCode fctCode, Vec3 pos){
+ID createCreature(gamedata *dt, creatureCode crtCode, bool isPlayerCharacter, std::string name, factionCode fctCode, Vec3 pos){
     Creature crt;
     crt.name = name;
     crt.crtCode = crtCode;
@@ -44,8 +44,7 @@ ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, st
     std::vector<ID> brainParts = getLinkedObjs(dt, whateverPart, ANY, FUNCTIONAL, "thought center", false);
     crt.body = brainParts[0];
     crt.battleTarget = 0;
-    crt.loc.chunk = dt->loadedChunk.chunkLoc;
-    crt.loc.loc = pos;
+    crt.loc = pos;
     crt.model = dt->grph->createModel("./models/cartwright_sprite.obj", dt->crtTextures.at(dt->crtRules.at(crtCode).textureName), glm::vec3(pos.x, pos.y, pos.z));
     //attributes
     crt.att_agi = 4;
@@ -56,7 +55,7 @@ ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, st
     return id;
 }
 
-std::vector<std::string> getMobilityTags(gameData *dt, ID crt){
+std::vector<std::string> getMobilityTags(gamedata *dt, ID crt){
     std::vector<std::string> result;
     if(getLinkedObjs(dt, ac(dt, crt)->body, ANY, FUNCTIONAL, "ambulator", false).size() > 0){
         result.push_back("ambulator");
@@ -70,13 +69,13 @@ std::vector<std::string> getMobilityTags(gameData *dt, ID crt){
     return result;
 }
 
-void moveToLocation(gameData *dt, ID creature, GraphObjID boundingBox, WorldLoc loc){
+void moveToLocation(gamedata *dt, ID creature, GraphObjID boundingBox, Loc loc){
     auto crtPtr = ac(dt, creature);
-    auto path = worldPath(dt, &crtPtr->loc.loc, &loc.loc, (double)crtPtr->att_agi, getMobilityTags(dt, creature));
+    auto path = worldPath(dt, &crtPtr->loc, &loc, (double)crtPtr->att_agi, getMobilityTags(dt, creature));
     if(path.size() > 0){
         for(int idx = path.size()-1; idx >= 0; idx--){
-            Vec3 newLoc = path[idx].loc;
-            dt->crtGroup.at(creature).loc.loc = newLoc;
+            Vec3 newLoc = path[idx];
+            dt->crtGroup.at(creature).loc = newLoc;
             dt->grph->setModelPosition(crtPtr->model, glm::vec3(newLoc.x, newLoc.y, newLoc.z));
             dt->grph->setBoundingBoxBounds(boundingBox, glm::vec3(newLoc.x-0.5, newLoc.y-0.5, newLoc.z-0.5), glm::vec3(newLoc.x+0.5, newLoc.y+0.5, newLoc.z+1.5));
         }

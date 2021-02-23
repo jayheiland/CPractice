@@ -7,19 +7,19 @@
 #include "objectm.h"
 #include "worldm.h"
 
-Creature *ac(gameData *dt, ID crt);
+Creature *ac(gamedata *dt, ID crt);
 
-void loadCreatureRules_Json(gameData *dt, std::string path);
+void loadCreatureRules_Json(gamedata *dt, std::string path);
 
 void loadCreatureRules(std::unordered_map<creatureCode, CreatureRule> *crtRules, std::string path);
 
-ID createCreature(gameData *dt, creatureCode crtCode, bool isPlayerCharacter, std::string name, factionCode fctCode, Vec3 pos);
+ID createCreature(gamedata *dt, creatureCode crtCode, bool isPlayerCharacter, std::string name, factionCode fctCode, Vec3 pos);
 
 void printCreatures(std::unordered_map<ID, Creature> *crtGroup);
 
-std::vector<std::string> getMobilityTags(gameData *dt, ID crt);
+std::vector<std::string> getMobilityTags(gamedata *dt, ID crt);
 
-void moveToLocation(gameData *dt, ID creature, GraphObjID BoundingBox, WorldLoc loc);
+void moveToLocation(gamedata *dt, ID creature, GraphObjID BoundingBox, Loc loc);
 
 void loadFactions_Json(std::unordered_map<factionCode, Faction> *fctGroup, std::string path);
 

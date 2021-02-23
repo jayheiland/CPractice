@@ -9,3 +9,4 @@ data/*
 shaders/*
 textures/*
 models/*
+Makefile

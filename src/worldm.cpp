@@ -40,7 +40,29 @@ WorldNode *getNearestNeighbor(WorldNode *node, Vec3 *worldSize){
     return nearest;
 }
 
-WorldChunk loadChunk(gameData *dt, std::string chunkPath, std::string nodeInfoPath){
+// void setFocusedChunk(gamedata *dt, std::string chunkPath, std::string nodeInfoPath, int xMapMax, int yMapMax){
+//     std::vector<std::string> *tokens;
+//     splitString(tokens, chunkPath, '-');
+//     int xFocus = std::stoi(tokens->at(1));
+//     int yFocus = std::stoi(tokens->at(2));
+//     if(xFocus > 0 || xFocus < xMapMax || yFocus > 0 || yFocus < yMapMax){
+//         dt->loadedChunks[0][0] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus-1) + "-" + std::to_string(yFocus-1) + ".json", nodeInfoPath, {0,0,0});
+//         dt->loadedChunks[0][1] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus-1) + "-" + std::to_string(yFocus) + ".json", nodeInfoPath, {0,1,0});
+//         dt->loadedChunks[0][2] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus-1) + "-" + std::to_string(yFocus+1) + ".json", nodeInfoPath, {0,2,0});
+
+//         dt->loadedChunks[1][0] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus) + "-" + std::to_string(yFocus-1) + ".json", nodeInfoPath, {1,0,0});
+//         dt->loadedChunks[1][1] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus) + "-" + std::to_string(yFocus) + ".json", nodeInfoPath, {1,1,0});
+//         dt->loadedChunks[1][2] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus) + "-" + std::to_string(yFocus+1) + ".json", nodeInfoPath, {1,2,0});
+
+//         dt->loadedChunks[2][0] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus+1) + "-" + std::to_string(yFocus-1) + ".json", nodeInfoPath, {2,0,0});
+//         dt->loadedChunks[2][1] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus+1) + "-" + std::to_string(yFocus) + ".json", nodeInfoPath, {2,1,0});
+//         dt->loadedChunks[2][2] = loadChunk(dt, tokens->at(0) + "-" + std::to_string(xFocus+1) + "-" + std::to_string(yFocus+1) + ".json", nodeInfoPath, {2,2,0});
+
+//         stitchLoadedChunks(gamedata *dt);
+//     }
+// }
+
+WorldChunk loadChunk(gamedata *dt, std::string chunkPath, std::string nodeInfoPath){
     JsonObject *chunkJson = parseJsonFile(chunkPath);
     JsonObject *nodeInfo = parseJsonFile(nodeInfoPath);
 
@@ -118,10 +140,10 @@ WorldChunk loadChunk(gameData *dt, std::string chunkPath, std::string nodeInfoPa
 
                 //add node 3D model
                 if(dt->nodeInfoMap.at(nodes[i][j][k].nodeName).material != "air"){
-                    WorldLoc bBoxLoc;
-                    bBoxLoc.loc.x = i;
-                    bBoxLoc.loc.y = j;
-                    bBoxLoc.loc.z = k;
+                    Loc bBoxLoc;
+                    bBoxLoc.x = i;
+                    bBoxLoc.y = j;
+                    bBoxLoc.z = k;
                     dt->boundingBoxToLocation.insert(std::make_pair(dt->grph->createBoundingBox(glm::vec3((float)i-0.5f,(float)j-0.5f,(float)k-0.5f), glm::vec3((float)i+0.5f,(float)j+0.5f,(float)k+0.5f)), bBoxLoc));
                 }
             }
@@ -131,6 +153,9 @@ WorldChunk loadChunk(gameData *dt, std::string chunkPath, std::string nodeInfoPa
     newChunk.model = dt->grph->createModel("models/arena.obj", chunkTxtr, glm::vec3(4.0f, 4.0f, 0.0f));
     newChunk.size = size;
     newChunk.nodes = nodes;
+    newChunk.origin = {(int)chunkJson->getJsonArray("origin").getDoubleArray()[0], (int)chunkJson->getJsonArray("origin").getDoubleArray()[1]};
+    deleteJsonObject(chunkJson);
+    deleteJsonObject(nodeInfo);
     return newChunk;
 }
 
@@ -181,13 +206,13 @@ void quicksort(WorldNode ***world, Vec3 *unvisNodes, int first, int last){
    }
 }
 
-bool canGoTo(gameData *dt, WorldNode *node, std::vector<std::string> mobilityTags){
-    Vec3 loc; loc.x = node->loc.x; loc.y = node->loc.y; loc.z = node->loc.z;
+bool canGoTo(gamedata *dt, WorldNode *node, std::vector<std::string> mobilityTags){
+    Loc loc = node->loc;
     // printf("enter canGoTo with node at %d,%d,%d\n", loc.x, loc.y, loc.z);
     MaterialPhase phase;
     if(node->loc.z > 0){
         loc.z--;
-        std::string nName = getNode(&dt->loadedChunk, loc)->nodeName;
+        std::string nName = getNode(dt, loc)->nodeName;
         std::string nMat = dt->nodeInfoMap.at(nName).material;
         phase = dt->matGroup.at(nMat).phase;
         if(phase == SOLID && contains(mobilityTags, "ambulator")){
@@ -196,7 +221,7 @@ bool canGoTo(gameData *dt, WorldNode *node, std::vector<std::string> mobilityTag
         }
         loc.z++;
     }
-    phase = dt->matGroup.at(dt->nodeInfoMap.at(getNode(&dt->loadedChunk, loc)->nodeName).material).phase;
+    phase = dt->matGroup.at(dt->nodeInfoMap.at(getNode(dt, loc)->nodeName).material).phase;
     switch(phase){
         case LIQUID: if(contains(mobilityTags, "swimmer")) return true;
         case GAS: if(contains(mobilityTags, "flier")) return true;
@@ -205,7 +230,7 @@ bool canGoTo(gameData *dt, WorldNode *node, std::vector<std::string> mobilityTag
     return false;
 }
 
-void markNodeNeighborsDistances(gameData *dt, WorldNode *curr, double edgeLen, std::vector<std::string> mobilityTags){
+void markNodeNeighborsDistances(gamedata *dt, WorldNode *curr, double edgeLen, std::vector<std::string> mobilityTags){
     double calcLen = (curr->distance_Pathing) + edgeLen;
     Vec3 loc = curr->loc;
     Vec3 size = dt->loadedChunk.size;
@@ -263,17 +288,16 @@ void markNodeNeighborsDistances(gameData *dt, WorldNode *curr, double edgeLen, s
     //printf("Newly visited node at %d,%d,%d has a current distance of: %\n", loc.x, loc.y, loc.z, curr->distance_Pathing);
 }
 
-std::vector<WorldLoc> worldPath(gameData *dt, Vec3 *start, Vec3 *end, int maxDist, std::vector<std::string> mobilityTags){
+std::vector<Loc> worldPath(gamedata *dt, Loc *start, Loc *end, int maxDist, std::vector<std::string> mobilityTags){
     WorldNode *curr;
-    std::vector<WorldLoc> path;
+    std::vector<Loc> path;
     auto range = getPathingRange(dt, start, maxDist, mobilityTags);
     for(auto rangeLoc : range){
-        if(rangeLoc.loc == *end){
+        if(rangeLoc == *end){
             curr = &dt->loadedChunk.nodes[end->x][end->y][end->z];
             while(!equal(&curr->loc, start)){
-                WorldLoc pathLoc;
-                pathLoc.chunk = dt->loadedChunk.chunkLoc;
-                pathLoc.loc = curr->loc;
+                Loc pathLoc;
+                pathLoc = curr->loc;
                 path.push_back(pathLoc);
                 curr = getNearestNeighbor(curr, &dt->loadedChunk.size);
             }
@@ -282,13 +306,13 @@ std::vector<WorldLoc> worldPath(gameData *dt, Vec3 *start, Vec3 *end, int maxDis
     return path;
 }
 
-std::vector<WorldLoc> getPathingRange(gameData *dt, Vec3 *start, double maxDist, std::vector<std::string> mobilityTags){
+std::vector<Loc> getPathingRange(gamedata *dt, Vec3 *start, double maxDist, std::vector<std::string> mobilityTags){
     WorldNode *curr;
     double edgeLen = 1.0;
     size_t x = dt->loadedChunk.size.x;
     size_t y = dt->loadedChunk.size.y;
     size_t z = dt->loadedChunk.size.z;
-    std::vector<WorldLoc> range;
+    std::vector<Loc> range;
     Vec3 *unvisNodes = (Vec3 *)malloc(x * y * z * sizeof(Vec3));
     int unvisCount = 0;
     int i,j,k, idx;
@@ -309,9 +333,8 @@ std::vector<WorldLoc> getPathingRange(gameData *dt, Vec3 *start, double maxDist,
     curr = &dt->loadedChunk.nodes[start->x][start->y][start->z];
 
     while(curr->distance_Pathing < maxDist){
-        WorldLoc loc;
-        loc.chunk = dt->loadedChunk.chunkLoc;
-        loc.loc = curr->loc;
+        Loc loc;
+        loc = curr->loc;
         range.push_back(loc);
         //debug
         // printf("Before sorting unvisNodes array (of unvisCount = %d):\n", unvisCount);
@@ -343,6 +366,6 @@ std::vector<WorldLoc> getPathingRange(gameData *dt, Vec3 *start, double maxDist,
     return range;
 }
 
-WorldNode *getNode(WorldChunk *chunk, Vec3 loc){
-    return &chunk->nodes[loc.x][loc.y][loc.z];
+WorldNode *getNode(gamedata *dt, Loc loc){
+    return &dt->loadedChunk.nodes[loc.x][loc.y][loc.z];
 }

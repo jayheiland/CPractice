@@ -23,7 +23,7 @@ struct GUI_StackSelector{
     std::vector<std::pair<ID, GraphObjID> > selectorButtons;
 };
 
-struct gameData{
+struct gamedata{
     //data models
     std::unordered_map<ID, Object> objGroup;
     std::unordered_map<objectCode, ObjectRule> objRules;
@@ -35,7 +35,7 @@ struct gameData{
 
     //world chunks
     WorldChunk loadedChunk;
-    std::unordered_map<GraphObjID, WorldLoc> boundingBoxToLocation;
+    std::unordered_map<GraphObjID, Loc> boundingBoxToLocation;
     std::unordered_map<std::string, NodeInfo> nodeInfoMap;
 
     //creature textures
@@ -44,14 +44,14 @@ struct gameData{
     //overhead / management / battle
     ID selectedPC;
     ID selectedNPC;
-    WorldLoc selectedLoc;
+    Loc selectedLoc;
     bool inBattle;
     std::queue<ID> turnQueue;
     std::unordered_map<GraphObjID, ID> boundingBoxToCreature;
 
     //graphics data
     GraphicsLayer *grph;
-    WorldLoc cameraTarget;
+    Loc cameraTarget;
     double cameraPos[3];
     std::vector<GraphObjID> movementRangeMarkers;
     TextureID movementRangePCTxtr;

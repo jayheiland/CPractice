@@ -5,7 +5,7 @@
 enum CameraPanDirection{PANUP, PANDOWN, PANLEFT, PANRIGHT};
 enum CameraOrbitDirection{ORBITLEFT, ORBITRIGHT};
 
-void graphicsSetup(gameData *dt);
+void graphicsSetup(gamedata *dt);
 
 void graphicsDraw(GraphicsLayer *grph);
 
@@ -21,6 +21,6 @@ int getKeyPressed();
 
 void resetKeyPressed();
 
-void panCamera(gameData *dt, CameraPanDirection direction);
+void panCamera(gamedata *dt, CameraPanDirection direction);
 
-void orbitCamera(gameData *dt, CameraOrbitDirection direction);
+void orbitCamera(gamedata *dt, CameraOrbitDirection direction);

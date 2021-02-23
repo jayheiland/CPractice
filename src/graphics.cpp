@@ -4,7 +4,7 @@ uint LeftClicked_ButtonID;
 
 int KeyPressed;
 
-void graphicsSetup(gameData *dt){
+void graphicsSetup(gamedata *dt){
     dt->grph->setKeyEventCallback(onKeyEvent);
     dt->grph->setCamera(glm::vec3(15.0f, 15.0f, 9.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     dt->cameraTarget = {0,0,0};
@@ -48,13 +48,13 @@ void resetKeyPressed(){
     KeyPressed = 18848353;
 }
 
-void panCameraHelper(gameData *dt){
+void panCameraHelper(gamedata *dt){
 
 }
 
-void panCamera(gameData *dt, CameraPanDirection direction){
-    double diffX = dt->cameraPos[0]-dt->cameraTarget.loc.x;
-    double diffY = dt->cameraPos[1]-dt->cameraTarget.loc.y;
+void panCamera(gamedata *dt, CameraPanDirection direction){
+    double diffX = dt->cameraPos[0]-dt->cameraTarget.x;
+    double diffY = dt->cameraPos[1]-dt->cameraTarget.y;
     double moveX;
     double moveY;
     double panStep = 2.0;
@@ -134,33 +134,33 @@ void panCamera(gameData *dt, CameraPanDirection direction){
     }
     dt->cameraPos[0]+=moveX;
     dt->cameraPos[1]+=moveY;
-    dt->cameraTarget.loc.x+=moveX;
-    dt->cameraTarget.loc.y+=moveY;
-    dt->grph->setCamera(glm::vec3((float)dt->cameraPos[0], (float)dt->cameraPos[1], (float)dt->cameraPos[2]), glm::vec3((float)dt->cameraTarget.loc.x, (float)dt->cameraTarget.loc.y, (float)dt->cameraTarget.loc.z));
+    dt->cameraTarget.x+=moveX;
+    dt->cameraTarget.y+=moveY;
+    dt->grph->setCamera(glm::vec3((float)dt->cameraPos[0], (float)dt->cameraPos[1], (float)dt->cameraPos[2]), glm::vec3((float)dt->cameraTarget.x, (float)dt->cameraTarget.y, (float)dt->cameraTarget.z));
 }
 
-void orbitCamera(gameData *dt, CameraOrbitDirection direction){
-    double x = dt->cameraPos[0]-dt->cameraTarget.loc.x;
-    double y = dt->cameraPos[1]-dt->cameraTarget.loc.y;
+void orbitCamera(gamedata *dt, CameraOrbitDirection direction){
+    double x = dt->cameraPos[0]-dt->cameraTarget.x;
+    double y = dt->cameraPos[1]-dt->cameraTarget.y;
     float angle;
     switch(direction){
         case ORBITLEFT:{
             //default camera angle
             if(x>0 && y>0){
-                dt->cameraPos[1]=dt->cameraTarget.loc.y-15.0;
+                dt->cameraPos[1]=dt->cameraTarget.y-15.0;
                 angle = glm::radians(270.0f);
             }
             //default camera angle
             else if(x>0 && y<0){
-                dt->cameraPos[0]=dt->cameraTarget.loc.x-15.0;
+                dt->cameraPos[0]=dt->cameraTarget.x-15.0;
                 angle = glm::radians(180.0f);
             }
             else if(x<0 && y<0){
-                dt->cameraPos[1]=dt->cameraTarget.loc.y+15.0;
+                dt->cameraPos[1]=dt->cameraTarget.y+15.0;
                 angle = glm::radians(90.0f);
             }
             else if(x<0 && y>0){
-                dt->cameraPos[0]=dt->cameraTarget.loc.x+15.0;
+                dt->cameraPos[0]=dt->cameraTarget.x+15.0;
                 angle = glm::radians(0.0f);
             }
             break;
@@ -168,20 +168,20 @@ void orbitCamera(gameData *dt, CameraOrbitDirection direction){
         case ORBITRIGHT:{
             //default camera angle
             if(x>0 && y>0){
-                dt->cameraPos[0]=dt->cameraTarget.loc.x-15.0;
+                dt->cameraPos[0]=dt->cameraTarget.x-15.0;
                 angle = glm::radians(90.0f);
             }
             //default camera angle
             else if(x>0 && y<0){
-                dt->cameraPos[1]=dt->cameraTarget.loc.y+15.0;
+                dt->cameraPos[1]=dt->cameraTarget.y+15.0;
                 angle = glm::radians(0.0f);
             }
             else if(x<0 && y<0){
-                dt->cameraPos[0]=dt->cameraTarget.loc.x+15.0;
+                dt->cameraPos[0]=dt->cameraTarget.x+15.0;
                 angle = glm::radians(270.0f);
             }
             else if(x<0 && y>0){
-                dt->cameraPos[1]=dt->cameraTarget.loc.y-15.0;
+                dt->cameraPos[1]=dt->cameraTarget.y-15.0;
                 angle = glm::radians(180.0f);
             }
             break;
@@ -190,5 +190,5 @@ void orbitCamera(gameData *dt, CameraOrbitDirection direction){
     for(auto crt : dt->crtGroup){
         dt->grph->setModelRotation(crt.second.model, glm::vec3(0.0f, 0.0f, 1.0f), angle);
     }
-    dt->grph->setCamera(glm::vec3((float)dt->cameraPos[0], (float)dt->cameraPos[1], (float)dt->cameraPos[2]), glm::vec3((float)dt->cameraTarget.loc.x, (float)dt->cameraTarget.loc.y, (float)dt->cameraTarget.loc.z));
+    dt->grph->setCamera(glm::vec3((float)dt->cameraPos[0], (float)dt->cameraPos[1], (float)dt->cameraPos[2]), glm::vec3((float)dt->cameraTarget.x, (float)dt->cameraTarget.y, (float)dt->cameraTarget.z));
 }

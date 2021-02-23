@@ -9,8 +9,9 @@
 
 int equal(Vec3 *vec1, Vec3 *vec2);
 void printPath(Vec3 *path, int length);
-WorldChunk loadChunk(gameData *dt, std::string chunkPath, std::string nodeInfoPath);
+// void setFocusedChunk(gamedata *dt, std::string chunkPath, std::string nodeInfoPath);
+WorldChunk loadChunk(gamedata *dt, std::string chunkPath, std::string nodeInfoPath);
 void deleteChunk(WorldChunk *chunk);
-std::vector<WorldLoc> worldPath(gameData *dt, Vec3 *start, Vec3 *end, int maxDist, std::vector<std::string> mobilityTags);
-std::vector<WorldLoc> getPathingRange(gameData *dt, Vec3 *start, double maxDist, std::vector<std::string> mobilityTags);
-WorldNode *getNode(WorldChunk *chunk, Vec3 loc);
+std::vector<Loc> worldPath(gamedata *dt, Loc *start, Loc *end, int maxDist, std::vector<std::string> mobilityTags);
+std::vector<Loc> getPathingRange(gamedata *dt, Loc *start, double maxDist, std::vector<std::string> mobilityTags);
+WorldNode *getNode(gamedata *dt, Loc loc);

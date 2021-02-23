@@ -7,6 +7,15 @@
 
 #include "golden_plains.h"
 
+struct Vec2{
+    int x;
+    int y;
+    bool operator==(const Vec2& a) const
+    {
+        return (x == a.x && y == a.y);
+    }
+};
+
 struct Vec3{
     int x;
     int y;
@@ -17,14 +26,16 @@ struct Vec3{
     }
 };
 
-struct WorldLoc{
-    Vec3 chunk;
-    Vec3 loc;
-    bool operator==(const WorldLoc& a) const
-    {
-        return (loc == a.loc && chunk.x == a.chunk.x && chunk.y == a.chunk.y && chunk.z == a.chunk.z);
-    }
-};
+typedef Vec3 Loc;
+
+// struct Loc{
+//     Vec3 inLoadZone;
+//     Vec3 inChunk;
+//     bool operator==(const Loc& a) const
+//     {
+//         return (inChunk == a.inChunk && inLoadZone.x == a.inLoadZone.x && inLoadZone.y == a.inLoadZone.y && inLoadZone.z == a.inLoadZone.z);
+//     }
+// };
 
 //a piece of 3D world space
 struct WorldNode{
@@ -50,7 +61,7 @@ struct NodeInfo{
 
 //a 3D matrix of worldNodes
 struct WorldChunk{
-    Vec3 chunkLoc;
+    Vec2 origin;
     Vec3 size;
     WorldNode ***nodes;
     struct WorldChunk* east;

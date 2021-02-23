@@ -33,7 +33,7 @@ struct Creature{
     bool isPC;
     ID battleTarget;
     //pathing data
-    WorldLoc loc;
+    Loc loc;
     bool currentlyPathing; //true if creature is actively following its given path
     Vec3 *path;
     //graphics data

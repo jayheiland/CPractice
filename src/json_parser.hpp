@@ -270,9 +270,9 @@ inline JsonObject *parseJsonFile(std::string path){
 }
 
 inline void deleteNameValuePair(nameValuePair pair){
-
+    
 }
 
 inline void deleteJsonObject(JsonObject *obj){
-
+    delete(obj);
 }
